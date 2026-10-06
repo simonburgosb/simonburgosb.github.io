@@ -1,412 +1,262 @@
-/* ===================================================== */
-/* PORTFOLIO LANDING PAGE */
-/* MAIN JAVASCRIPT FILE */
-/* ===================================================== */
-
-const App = {
-
-    init() {
-
-        this.cacheDOM();
-
-        this.stickyNavbar();
-
-        this.smoothScroll();
-
-        this.activeNavigation();
-
-        this.scrollReveal();
-
-        this.setupContactForm();
-
-        this.setupCVDownloads();
-
-    },
-
-    cacheDOM() {
-
-        this.header = document.querySelector(".header");
-
-        this.navLinks = document.querySelectorAll('.header__nav-list a');
-
-        this.sections = document.querySelectorAll("section[id]");
-
-        this.menuCheckbox = document.getElementById("menu");
-
-    },
-
-    /* ====================================== */
-    /* STICKY NAVBAR */
-    /* ====================================== */
-
-    stickyNavbar() {
-
-        window.addEventListener("scroll", () => {
-
-            if(window.scrollY > 80) {
-
-                this.header.classList.add("scrolled");
-
-            } else {
-
-                this.header.classList.remove("scrolled");
-
-            }
-
-        });
-
-    },
-
-    /* ====================================== */
-    /* SMOOTH SCROLL */
-    /* ====================================== */
-
-    smoothScroll() {
-
-        this.navLinks.forEach(link => {
-
-            link.addEventListener("click", (e) => {
-
-                e.preventDefault();
-
-                const target = document.querySelector(link.getAttribute("href"));
-
-                if(!target) return;
-
-                // Close mobile menu
-
-                this.menuCheckbox.checked = false;
-
-                target.scrollIntoView({
-
-                    behavior: "smooth",
-
-                    block: "start"
-
-                });
-
-            });
-
-        });
-
-    },
-
-    /* ====================================== */
-    /* ACTIVE NAVIGATION */
-    /* ====================================== */
-
-    activeNavigation() {
-
-        window.addEventListener("scroll", () => {
-
-            let current = "";
-
-            this.sections.forEach(section => {
-
-                const top = section.offsetTop - 150;
-
-                const height = section.offsetHeight;
-
-                if(window.scrollY >= top) {
-
-                    current = section.getAttribute("id");
-
-                }
-
-            });
-
-            this.navLinks.forEach(link => {
-
-                link.classList.remove("active");
-
-                if(link.getAttribute("href") === `#${current}`) {
-
-                    link.classList.add("active");
-
-                }
-
-            });
-
-        });
-
-    },
-
-    /* ====================================== */
-    /* SCROLL REVEAL ANIMATIONS */
-    /* ====================================== */
-
-    scrollReveal() {
-
-        const elements = document.querySelectorAll(
-
-            ".section-heading, .about-card, .project-card, .project-card-secondary, .skill-item, .cv-card"
-
-        );
-
-        const observer = new IntersectionObserver((entries) => {
-
-            entries.forEach(entry => {
-
-                if(!entry.isIntersecting) return;
-
-                entry.target.classList.add("in-view");
-
-                observer.unobserve(entry.target);
-
-            });
-
-        }, {
-
-            threshold: 0.15,
-
-            rootMargin: "0px 0px -60px 0px"
-
-        });
-
-        elements.forEach(element => {
-
-            observer.observe(element);
-
-        });
-
-    },
-
-    /* ====================================== */
-    /* CONTACT FORM WITH EMAILJS */
-    /* ====================================== */
-
-    setupContactForm() {
-
-        // Initialize EmailJS
-
-        emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
-
-        const form = document.getElementById("contactForm");
-
-        if(!form) return;
-
-        form.addEventListener("submit", (e) => {
-
-            e.preventDefault();
-
-            const name = document.getElementById("name").value;
-
-            const lastname = document.getElementById("lastname").value;
-
-            const email = document.getElementById("email").value;
-
-            const subject = document.getElementById("subject").value;
-
-            const message = document.getElementById("message").value;
-
-            // Prepare template parameters
-
-            const templateParams = {
-
-                to_email: "simonburgosb@gmail.com",
-
-                from_name: `${name} ${lastname}`,
-
-                from_email: email,
-
-                subject: subject,
-
-                message: message
-
-            };
-
-            // Send email via EmailJS
-
-            emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", templateParams)
-
-                .then((response) => {
-
-                    console.log("Email sent successfully!", response);
-
-                    // Show success message
-
-                    this.showNotification("Message sent successfully! I'll get back to you soon.", "success");
-
-                    // Reset form
-
-                    form.reset();
-
-                })
-
-                .catch((error) => {
-
-                    console.error("Error sending email:", error);
-
-                    this.showNotification("Error sending message. Please try again.", "error");
-
-                });
-
-        });
-
-    },
-
-    /* ====================================== */
-    /* CV DOWNLOADS */
-    /* ====================================== */
-
-    setupCVDownloads() {
-
-        const cvCards = document.querySelectorAll(".cv-card");
-
-        cvCards.forEach((card, index) => {
-
-            card.addEventListener("click", (e) => {
-
-                // Map index to language
-
-                const languages = ["es", "en", "fr"];
-
-                const lang = languages[index];
-
-                // Simulated download - replace with actual CV file paths
-
-                const cvPath = `./Cv_SimonBurgos_${lang.toUpperCase()}.pdf`;
-
-                this.downloadFile(cvPath);
-
-            });
-
-        });
-
-    },
-
-    downloadFile(filePath) {
-
-        const link = document.createElement("a");
-
-        link.href = filePath;
-
-        link.download = filePath.split("/").pop();
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        document.body.removeChild(link);
-
-    },
-
-    /* ====================================== */
-    /* NOTIFICATION SYSTEM */
-    /* ====================================== */
-
-    showNotification(message, type = "success") {
-
-        const notification = document.createElement("div");
-
-        notification.style.cssText = `
-
-            position: fixed;
-
-            top: 100px;
-
-            right: 20px;
-
-            padding: 20px 30px;
-
-            background: ${type === "success" ? "#2E5BFF" : "#ff6b6b"};
-
-            color: white;
-
-            border-radius: 8px;
-
-            box-shadow: 0 8px 24px rgba(0,0,0,.15);
-
-            z-index: 2000;
-
-            font-weight: 600;
-
-            animation: slideInRight .3s ease-out;
-
-            max-width: 400px;
-
-        `;
-
-        notification.textContent = message;
-
-        document.body.appendChild(notification);
-
-        // Remove after 5 seconds
-
-        setTimeout(() => {
-
-            notification.style.animation = "slideOutRight .3s ease-out forwards";
-
-            setTimeout(() => {
-
-                document.body.removeChild(notification);
-
-            }, 300);
-
-        }, 5000);
-
+/* JavaScript compartido. Sin frameworks ni dependencia de EmailJS. */
+(() => {
+  'use strict';
+  /* I18N_DICTIONARIES_START */
+  const dictionaries = {"en":{"Saltar al contenido":"Skip to content","SBB Designs":"SBB Designs","/ UI·UX":"/ UI·UX","Proyectos":"Projects","Sobre mí":"About me","Contacto":"Contact","Descargar CV":"Download CV","(PDF, abre en otra pestaña)":"(PDF, opens in a new tab)","DISEÑADOR UI/UX · MEDELLÍN":"UI/UX DESIGNER · MEDELLÍN","Entender primero.":"Understand first.","Diseñar con":"Design with","propósito.":"purpose.","Soy Simón Burgos. Conecto investigación, diseño de interacción y desarrollo para convertir problemas en experiencias digitales claras.":"I’m Simón Burgos. I connect research, interaction design and development to turn problems into clear digital experiences.","Explorar proyectos":"Explore projects","Ver mi CV":"View my CV","(abre en otra pestaña)":"(opens in a new tab)","Estudiante de Ingeniería en Diseño":"Digital Entertainment","de Entretenimiento Digital.":"Design Engineering student.","UI/UX + Frontend + Experiencias interactivas":"UI/UX + Frontend + Interactive experiences","DEL PROBLEMA AL PROTOTIPO":"FROM PROBLEM TO PROTOTYPE","CASO DESTACADO / 01":"FEATURED CASE / 01","Rappi UX Redesign":"Rappi UX Redesign","Trabajo seleccionado":"Selected work","Problemas reales.":"Real problems.","Decisiones con intención.":"Purposeful decisions.","Una selección de proyectos académicos que conecta investigación, interfaces y experiencias interactivas.":"A selection of academic projects connecting research, interfaces and interactive experiences.","PRODUCT DESIGN":"PRODUCT DESIGN","01 / PROPUESTA DE REDISEÑO":"01 / REDESIGN PROPOSAL","Menos incertidumbre":"Less uncertainty","al pedir con Rappi.":"when ordering with Rappi.","Una propuesta de experiencia que aborda la transparencia del pedido, el seguimiento y la visibilidad del soporte.":"An experience proposal addressing order transparency, tracking and support visibility.","UX Research":"UX Research","Service Design":"Service Design","UI Design":"UI Design","Mi rol":"My role","Investigación, síntesis y diseño de producto.":"Research, synthesis and product design.","Explorar caso de estudio":"Explore case study","INTERACTION DESIGN":"INTERACTION DESIGN","02 / EXPERIENCIA CULTURAL":"02 / CULTURAL EXPERIENCE","Memoria Viva":"Memoria Viva","Reconectar a visitantes con las historias de Las Matronas mediante tres experiencias físicas y digitales.":"Reconnecting visitors with the stories of Las Matronas through three physical and digital experiences.","Interacción":"Interaction","Desarrollo":"Development","Explorar caso de estudio ↗":"Explore case study ↗","PLAYER EXPERIENCE":"PLAYER EXPERIENCE","03 / DISEÑO DE VIDEOJUEGOS":"03 / GAME DESIGN","Invisible Intruders":"Invisible Intruders","Exploración, narrativa ambiental y tensión progresiva en una experiencia de terror construida en Unity.":"Exploration, environmental storytelling and progressive tension in a horror experience built with Unity.","Game Design":"Game Design","UX del jugador":"Player UX","Unity":"Unity","SIMÓN BURGOS / DISEÑO + INTERACCIÓN":"SIMÓN BURGOS / DESIGN + INTERACTION","02 / Sobre mí":"02 / About me","Del porqué":"From why","al cómo.":"to how.","Me interesa entender a las personas y convertir lo que aprendo en productos que se puedan explorar, probar y construir.":"I’m interested in understanding people and turning what I learn into products that can be explored, tested and built.","Estudio Ingeniería en Diseño de Entretenimiento Digital, con enfoque en experiencias interactivas. Mi interés principal es UI/UX; el desarrollo frontend y Unity me permiten conectar las decisiones de diseño con su implementación.":"I study Digital Entertainment Design Engineering, with a focus on interactive experiences. My main interest is UI/UX; frontend development and Unity help me connect design decisions with implementation.","He participado en proyectos de productos digitales, patrimonio cultural y videojuegos. Busco seguir creciendo en equipos donde la investigación y el diseño tengan un papel activo en la construcción del producto.":"I’ve worked on digital products, cultural heritage projects and games. I’m looking to grow within teams where research and design play an active role in building the product.","CV":"CV","Mi perfil profesional":"My professional profile","Descarga mi CV.":"Download my CV.","Elige tu idioma para conocer mi formación, capacidades y experiencia.":"Choose your language to explore my education, skills and experience.","PDF / ES":"PDF / ES","Currículum en español":"CV in Spanish","Descargar PDF":"Download PDF","PDF / EN":"PDF / EN","Currículum en inglés":"CV in English","PDF / FR":"PDF / FR","Currículum en francés":"CV in French","Cómo trabajo":"How I work","Investigar. Diseñar. Construir.":"Research. Design. Build.","Capacidades que aplico en proyectos, desde comprender el contexto hasta materializar una experiencia.":"Skills I apply in projects, from understanding the context to bringing an experience to life.","Comprender el problema":"Understand the problem","Investigación secundaria, entrevistas, encuestas y síntesis de hallazgos para definir oportunidades de diseño.":"Secondary research, interviews, surveys and synthesis of findings to define design opportunities.","Dar forma a la experiencia":"Shape the experience","Journeys, flujos de interacción, wireframes, diseño de interfaces y prototipos en Figma.":"Journeys, interaction flows, wireframes, interface design and prototypes in Figma.","Conectar diseño y desarrollo":"Connect design and development","HTML, CSS y JavaScript para web; Unity y C# para experiencias interactivas y videojuegos.":"HTML, CSS and JavaScript for the web; Unity and C# for interactive experiences and games.","Investigación en Memoria Viva ↗":"Research in Memoria Viva ↗","Interfaces en Rappi ↗":"Interfaces in Rappi ↗","Desarrollo en Unity ↗":"Unity development ↗","04 / Contacto":"04 / Contact","Hablemos de":"Let’s talk about","lo que viene.":"what’s next.","Si estás buscando un perfil UI/UX con interés en investigación, diseño de producto e implementación, me gustaría conversar.":"If you’re looking for a UI/UX profile interested in research, product design and implementation, I’d love to talk.","simonburgosb@gmail.com ↗":"simonburgosb@gmail.com ↗","Conectar en LinkedIn ↗":"Connect on LinkedIn ↗","Nombre":"Name","Correo electrónico":"Email address","Mensaje":"Message","Dejar vacío":"Leave empty","Enviar mensaje":"Send message","También puedes escribirme directamente por correo.":"You can also email me directly.","Simón Burgos":"Simón Burgos","Investigación, diseño e interacción.":"Research, design and interaction.","LinkedIn ↗":"LinkedIn ↗","GitHub ↗":"GitHub ↗","Descargar mi CV":"Download my CV","· Diseñado y construido por Simón.":"· Designed and built by Simón.","Idioma":"Language","×":"×","SBB Designs, inicio":"SBB Designs, home","Abrir menú":"Open menu","Navegación principal":"Main navigation","Explorar el caso Rappi UX Redesign":"Explore the Rappi UX Redesign case","Propuesta de resumen del pedido de Rappi":"Rappi order summary proposal","Propuesta de página de inicio de Rappi":"Rappi homepage proposal","Propuesta de seguimiento del pedido de Rappi":"Rappi order tracking proposal","Ver el caso Rappi UX Redesign":"View the Rappi UX Redesign case","Inicio personalizado de la propuesta de Rappi":"Personalized homepage in the Rappi proposal","Seguimiento de pedidos en la propuesta de Rappi":"Order tracking in the Rappi proposal","Resumen del pedido en la propuesta de Rappi":"Order summary in the Rappi proposal","Áreas del proyecto":"Project disciplines","Ver el caso Memoria Viva":"View the Memoria Viva case","Identidad de Memoria Viva: una casa que conecta patrimonio y memoria":"Memoria Viva identity: a house connecting heritage and memory","Ver el caso Invisible Intruders":"View the Invisible Intruders case","Pantalla de inicio del juego Invisible Intruders":"Invisible Intruders game start screen","Retrato de Simón Burgos":"Portrait of Simón Burgos","Descargar CV en español (PDF)":"Download CV in Spanish (PDF)","Descargar CV en inglés (PDF)":"Download CV in English (PDF)","Descargar CV en francés (PDF)":"Download CV in French (PDF)","¿Cómo te llamas?":"What’s your name?","tu@correo.com":"you@example.com","Cuéntame sobre la oportunidad o el proyecto.":"Tell me about the opportunity or project.","Idioma del sitio":"Site language","Cerrar imagen":"Close image","Simón Burgos | Diseñador UI/UX":"Simón Burgos | UI/UX Designer","Portafolio de Simón Burgos: investigación UX, diseño de interfaces y desarrollo de experiencias interactivas. Explora los casos de Rappi, Memoria Viva e Invisible Intruders.":"Simón Burgos’s portfolio: UX research, interface design and interactive experience development. Explore the Rappi, Memoria Viva and Invisible Intruders cases.","Contacto desde el portafolio de Simón Burgos":"Contact from Simón Burgos’s portfolio","← Proyectos":"← Projects","Contexto":"Context","Investigación":"Research","Journey":"Journey","Decisiones":"Decisions","Prototipo":"Prototype","01 / UX RESEARCH · SERVICE DESIGN · UI DESIGN":"01 / UX RESEARCH · SERVICE DESIGN · UI DESIGN","Rappi UX":"Rappi UX","Redesign.":"Redesign.","Reducir la incertidumbre al pedir: información clara, seguimiento visible y una experiencia más fácil de entender.":"Reducing uncertainty when ordering: clear information, visible tracking and an experience that’s easier to understand.","Proyecto académico":"Academic project","Propuesta conceptual":"Conceptual proposal","Explorar el proceso":"Explore the process","Abrir prototipo":"Open prototype","UX Research · Service Design · Product Design":"UX Research · Service Design · Product Design","Enfoque":"Focus","Confianza y transparencia":"Trust and transparency","Entregable":"Deliverable","Prototipo de alta fidelidad":"High-fidelity prototype","Rediseño académico independiente":"Independent academic redesign","El contexto":"The context","La espera no es":"Waiting isn’t","el único problema.":"the only problem.","La incertidumbre aparece cuando el usuario no entiende qué está pasando con su pedido.":"Uncertainty arises when users don’t understand what’s happening with their order.","El proyecto explora fricciones relacionadas con tiempos de entrega, claridad de precios y acceso al soporte dentro de la experiencia de Rappi.":"The project explores friction around delivery times, pricing clarity and access to support within the Rappi experience.","El objetivo del rediseño es aumentar la claridad en los momentos críticos: elegir, confirmar, esperar y resolver una dificultad.":"The redesign aims to improve clarity at critical moments: choosing, confirming, waiting and resolving a problem.","Mi participación se centró en la síntesis de investigación, el journey, el análisis del servicio y el diseño de la propuesta de interfaz.":"My contribution focused on research synthesis, journey mapping, service analysis and the proposed interface design.","De los hallazgos":"From findings","a las oportunidades.":"to opportunities.","Investigación secundaria y síntesis mediante Atomic Research para conectar hechos, interpretaciones y recomendaciones.":"Secondary research and synthesis using Atomic Research to connect facts, interpretations and recommendations.","Relación entre hallazgos de investigación, interpretación y respuesta de diseño":"Relationship between research findings, interpretation and design response","Hallazgo sintetizado":"Synthesized finding","Interpretación":"Interpretation","Oportunidad":"Opportunity","Incertidumbre durante la entrega.":"Uncertainty during delivery.","La falta de información dificulta comprender una demora.":"A lack of information makes delays harder to understand.","Hacer visible el progreso y explicar el estado del pedido.":"Make progress visible and explain the order status.","Promociones y descuentos difíciles de entender.":"Promotions and discounts are difficult to understand.","El ahorro pierde valor cuando el usuario no logra verificarlo.":"Savings lose value when users can’t verify them.","Mostrar cargos y ahorros en un resumen claro.":"Show charges and savings in a clear summary.","Fricción al buscar ayuda.":"Friction when seeking help.","La resolución del problema influye en la confianza en el servicio.":"Problem resolution influences trust in the service.","Dar visibilidad al soporte y al estado de una solicitud.":"Make support and request status visible.","Estos hallazgos orientan la propuesta de diseño; la validación del prototipo es una fase de trabajo diferenciada.":"These findings guide the design proposal; prototype validation is a separate phase of work.","Customer journey":"Customer journey","Una experiencia,":"One experience,","seis momentos.":"six moments.","El recorrido permite ubicar los puntos de incertidumbre y las oportunidades de comunicación.":"The journey helps identify moments of uncertainty and communication opportunities.","Descubrir":"Discover","Abrir la app para resolver una necesidad inmediata.":"Open the app to address an immediate need.","Explorar":"Explore","Comparar opciones, promociones y tiempos de entrega.":"Compare options, promotions and delivery times.","Confirmar":"Confirm","Entender el total y revisar el pedido antes de pagar.":"Understand the total and review the order before paying.","Esperar":"Wait","Saber qué ocurre y cuánto falta para recibirlo.":"Know what’s happening and how long delivery will take.","Resolver":"Resolve","Acceder a ayuda cuando algo no sale como se esperaba.":"Get help when something doesn’t go as expected.","Volver":"Return","Decidir si la experiencia merece una nueva compra.":"Decide whether the experience is worth another purchase.","SERVICE DESIGN":"SERVICE DESIGN","La interfaz también depende del servicio.":"The interface also depends on the service.","Frente al usuario":"User-facing experience","Precios legibles, estado del pedido y comunicación de entrega.":"Readable prices, order status and delivery communication.","Operación":"Operations","Verificación de pedidos, estimaciones de tiempo y escalamiento.":"Order verification, time estimates and escalation.","Soporte":"Support","Acceso a ayuda, estado de solicitudes y recuperación de confianza.":"Access to help, request status and recovery of trust.","Decisiones de diseño":"Design decisions","Hacer visible":"Make visible","lo que importa.":"what matters.","01 / SEGUIMIENTO":"01 / TRACKING","Explicar el progreso,":"Explain the progress,","no solo la espera.":"not just the wait.","La propuesta presenta el estado de preparación, el tiempo estimado y el recorrido de entrega en una misma experiencia.":"The proposal brings preparation status, estimated time and the delivery journey into one experience.","Conexión con el hallazgo":"Connection to the finding","Frente a la incertidumbre, el diseño prioriza información de estado y una lectura rápida del progreso.":"To address uncertainty, the design prioritizes status information and progress that’s quick to read.","Seguimiento: tiempo estimado y estado del pedido.":"Tracking: estimated time and order status.","02 / CONFIRMACIÓN":"02 / CONFIRMATION","Dar confianza":"Build confidence","antes de pagar.":"before payment.","El pedido, los cargos y el total se organizan antes de la confirmación para que la decisión se tome con información visible.":"The order, charges and total are organized before confirmation so users can decide with visible information.","La claridad de costos responde a las dificultades para interpretar precios y promociones.":"Cost clarity addresses difficulties in interpreting prices and promotions.","Confirmación: resumen y desglose del total.":"Confirmation: summary and total breakdown.","03 / VERIFICACIÓN":"03 / VERIFICATION","Un pedido":"An order","más fácil de revisar.":"that’s easier to review.","La propuesta incorpora revisión visual y confirmación de recogida para hacer más comprensible la verificación del pedido.":"The proposal adds visual review and pickup confirmation to make order verification easier to understand.","Alcance de la propuesta":"Proposal scope","Estas funciones requieren coordinación entre la interfaz, la operación y el soporte del servicio.":"These features require coordination between the interface, operations and service support.","Verificación: información de recogida y confirmación visual.":"Verification: pickup information and visual confirmation.","Alta fidelidad":"High fidelity","La propuesta":"The proposal","en pantalla.":"on screen.","Explora las pantallas en detalle o recorre el prototipo interactivo en Figma.":"Explore the screens in detail or walk through the interactive prototype in Figma.","01 / Inicio":"01 / Home","02 / Explorar":"02 / Explore","03 / Revisar pedido":"03 / Review order","04 / Confirmar":"04 / Confirm","05 / Seguir pedido":"05 / Track order","06 / Entender el estado":"06 / Understand the status","Recorrer el prototipo en Figma":"Explore the prototype in Figma","Aprendizaje y validación":"Learning and validation","Diseñar confianza":"Designing trust","requiere comprobarla.":"means testing it.","El análisis del servicio ayudó a identificar oportunidades que van más allá de la estética. La transparencia del pedido y la claridad de la comunicación guiaron la propuesta.":"Service analysis helped identify opportunities beyond aesthetics. Order transparency and clear communication guided the proposal.","La siguiente fase de validación debe comprobar si las personas entienden el estado de su pedido, interpretan los cargos y encuentran ayuda cuando la necesitan.":"The next validation phase should check whether people understand their order status, interpret charges and find help when needed.","Tareas de prueba":"Test tasks","Revisar el total, localizar el estado del pedido y encontrar una opción de ayuda.":"Review the total, locate order status and find a help option.","Qué observar":"What to observe","Éxito de la tarea, errores de interpretación, tiempo y percepción de claridad.":"Task success, interpretation errors, time and perceived clarity.","Siguiente proyecto":"Next project","Investigación e interacción para reconectar con el patrimonio cultural.":"Research and interaction to reconnect with cultural heritage.","Secciones del caso":"Case study sections","Resumen del pedido en el prototipo de Rappi":"Order summary in the Rappi prototype","Pantalla de inicio del prototipo de Rappi":"Homepage of the Rappi prototype","Seguimiento en el prototipo de Rappi":"Tracking in the Rappi prototype","Ampliar: Propuesta de seguimiento del pedido":"Enlarge: Order tracking proposal","Propuesta de seguimiento del pedido":"Order tracking proposal","Ampliar: Propuesta de pago con desglose de costos":"Enlarge: Payment proposal with a cost breakdown","Propuesta de pago con desglose de costos":"Payment proposal with a cost breakdown","Ampliar: Propuesta de confirmación visual de recogida":"Enlarge: Visual pickup confirmation proposal","Propuesta de confirmación visual de recogida":"Visual pickup confirmation proposal","Ampliar: Inicio personalizado del prototipo":"Enlarge: Personalized homepage in the prototype","Inicio personalizado del prototipo":"Personalized homepage in the prototype","Ampliar: Detalle de restaurante y productos":"Enlarge: Restaurant and product details","Detalle de restaurante y productos":"Restaurant and product details","Ampliar: Resumen del pedido con productos y entrega":"Enlarge: Order summary with products and delivery","Resumen del pedido con productos y entrega":"Order summary with products and delivery","Ampliar: Pantalla de pago y desglose de cargos":"Enlarge: Payment screen and charge breakdown","Pantalla de pago y desglose de cargos":"Payment screen and charge breakdown","Ampliar: Mapa y seguimiento del pedido":"Enlarge: Map and order tracking","Mapa y seguimiento del pedido":"Map and order tracking","Ampliar: Estado de preparación y tiempo estimado":"Enlarge: Preparation status and estimated time","Estado de preparación y tiempo estimado":"Preparation status and estimated time","Rappi UX Redesign | Simón Burgos":"Rappi UX Redesign | Simón Burgos","Caso académico de UX Research, Service Design y diseño de interfaces para mejorar la claridad de la experiencia de pedidos.":"An academic case in UX Research, Service Design and interface design to improve clarity throughout the ordering experience.","Experiencias":"Experiences","Proceso":"Process","Aprendizajes":"Learnings","02 / UX RESEARCH · INTERACTION DESIGN":"02 / UX RESEARCH · INTERACTION DESIGN","Memoria":"Memoria","Viva.":"Viva.","Convertir la historia de Las Matronas de Santa Fe de Antioquia en una experiencia que se explora, se comparte y se recuerda.":"Turning the stories of Las Matronas in Santa Fe de Antioquia into an experience to explore, share and remember.","Experiencia física + digital":"Physical + digital experience","Explorar las experiencias":"Explore the experiences","Visitar el proyecto":"Visit the project","PATRIMONIO · HISTORIAS · PERSONAS":"HERITAGE · STORIES · PEOPLE","Liderazgo · UX Research · Interacción · Desarrollo":"Leadership · UX Research · Interaction · Development","Duración":"Duration","Un semestre académico":"One academic semester","Equipo":"Team","Multidisciplinario":"Multidisciplinary","Entregables":"Deliverables","Landing + tres experiencias interactivas":"Landing page + three interactive experiences","El reto":"The challenge","Pasar de observar":"From observation","a participar.":"to participation.","¿Cómo acercar el patrimonio cultural a las personas a través de la interacción?":"How can interaction bring cultural heritage closer to people?","El proyecto propone una forma participativa de descubrir las historias de Las Matronas. El reto era conectar el contenido histórico con la curiosidad de los visitantes y con experiencias que pudieran compartir.":"The project proposes a participatory way to discover the stories of Las Matronas. The challenge was to connect historical content with visitors’ curiosity and with experiences they could share.","La oportunidad estaba en combinar objetos físicos, historias y medios digitales, manteniendo el patrimonio como centro de la experiencia.":"The opportunity was to combine physical objects, stories and digital media while keeping heritage at the center of the experience.","Coordiné el equipo y participé en investigación, definición de conceptos, flujos de interacción, prototipado y apoyo al desarrollo.":"I coordinated the team and contributed to research, concept definition, interaction flows, prototyping and development support.","Escuchar para":"Listen to","diseñar la interacción.":"design the interaction.","Investigación secundaria, entrevistas, encuestas y síntesis mediante journey y agrupación de hallazgos.":"Secondary research, interviews, surveys and synthesis through journey mapping and clustering of findings.","Investigar el contexto":"Research the context","Explorar referentes de museos, exposiciones interactivas y experiencias inclusivas.":"Explore references from museums, interactive exhibitions and inclusive experiences.","Escuchar a visitantes":"Listen to visitors","Conocer percepciones sobre la historia, las interacciones y los espacios culturales.":"Understand perceptions of history, interactions and cultural spaces.","Sintetizar oportunidades":"Synthesize opportunities","Relacionar necesidades, puntos de fricción e ideas de interacción para definir los productos.":"Connect needs, friction points and interaction ideas to define the products.","Conexión entre los hallazgos de Memoria Viva y las decisiones de interacción":"Connection between Memoria Viva’s findings and interaction decisions","Respuesta de diseño":"Design response","Interés por descubrir historias mediante la interacción.":"Interest in discovering stories through interaction.","Experiencias basadas en exploración y participación activa.":"Experiences based on exploration and active participation.","Curiosidad al manipular objetos que revelan contenido.":"Curiosity when handling objects that reveal content.","Acciones físicas como punto de entrada a narrativas digitales.":"Physical actions as an entry point to digital narratives.","Valor de las experiencias compartidas.":"The value of shared experiences.","Mecánicas que promueven conversación y memoria colectiva.":"Mechanics encouraging conversation and collective memory.","Necesidad de interacciones fáciles de entender.":"The need for interactions that are easy to understand.","Flujos sencillos que mantienen la atención en la historia.":"Simple flows that keep attention on the story.","El ecosistema":"The ecosystem","Tres formas":"Three ways","de conectar con la historia.":"to connect with history.","Cada experiencia propone una relación distinta con el patrimonio: descubrir, explorar y compartir.":"Each experience offers a different relationship with heritage: discovering, exploring and sharing.","PRODUCTO 01 / MAXILIBRO":"PRODUCT 01 / MAXILIBRO","Descubrir historias":"Discover stories","en un libro interactivo.":"in an interactive book.","Un libro de gran formato que combina interacción física, ilustraciones y contenido multimedia para transformar la lectura en una experiencia compartida.":"A large-format book combining physical interaction, illustrations and multimedia content to turn reading into a shared experience.","Mi participación conectó los hallazgos de investigación con el concepto de interacción y el prototipado de la experiencia.":"My contribution connected research findings with the interaction concept and experience prototyping.","Storytelling":"Storytelling","Interacción física":"Physical interaction","Visión artificial":"Computer vision","Lógica de la experiencia":"Experience logic","Acercarse al libro y descubrir su contenido.":"Approach the book and discover its content.","Interactuar":"Interact","Una acción física da paso a la historia.":"A physical action leads into the story.","Compartir":"Share","La narración abre una conversación entre visitantes.":"The narrative opens a conversation between visitors.","Esquema explicativo del concepto de interacción.":"Explanatory diagram of the interaction concept.","PRODUCTO 02 / MAPA DE MEMORIAS":"PRODUCT 02 / MAPA DE MEMORIAS","Explorar lugares.":"Explore places.","Encontrar relatos.":"Find stories.","Un mapa interactivo que conecta ubicaciones y objetos de Las Matronas con historias de Santa Fe de Antioquia.":"An interactive map connecting locations and objects belonging to Las Matronas with stories of Santa Fe de Antioquia.","La navegación propone descubrir contenido a través de la exploración del territorio y de sus memorias.":"Navigation invites visitors to discover content by exploring the territory and its memories.","Exploración":"Exploration","Narrativa":"Narrative","Mapa interactivo":"Interactive map","Pieza de presentación del producto Mapa de Memorias.":"Presentation material for the Mapa de Memorias product.","PRODUCTO 03 / CHISMÓGRAFO":"PRODUCT 03 / CHISMÓGRAFO","La memoria también":"Memory is also","se construye al compartir.":"built by sharing.","Inspirado en los chismógrafos tradicionales, invita a los visitantes a contar sus historias y relacionarlas con relatos de otras personas.":"Inspired by traditional chismógrafo books, it invites visitors to tell their stories and connect them with other people’s accounts.","La interacción vincula recuerdos individuales con memoria colectiva y promueve la conversación.":"The interaction connects individual memories with collective memory and encourages conversation.","Participación":"Participation","Memoria colectiva":"Collective memory","Interacción social":"Social interaction","Explorar el Chismógrafo ↗":"Explore the Chismógrafo ↗","Pieza de presentación del producto Chismógrafo.":"Presentation material for the Chismógrafo product.","Proceso y contribución":"Process and contribution","Conectar investigación":"Connect research","con una experiencia funcional.":"with a working experience.","Conceptos y flujos":"Concepts and flows","Transformar hallazgos en ideas de interacción y recorridos para cada experiencia.":"Turn findings into interaction ideas and journeys for each experience.","Wireframes y prototipos":"Wireframes and prototypes","Participar en la revisión de estructuras, navegación y comportamiento antes del desarrollo.":"Contribute to reviewing structure, navigation and behavior before development.","Lenguaje visual":"Visual language","Colaborar en la identidad y en los componentes de las experiencias.":"Collaborate on the identity and components of the experiences.","Implementación y coordinación":"Implementation and coordination","Apoyar el desarrollo, organizar tareas y mantener alineados los objetivos del equipo.":"Support development, organize tasks and keep team objectives aligned.","La experiencia":"The experience","Del concepto":"From concept","al recorrido.":"to the journey.","Un vistazo al ecosistema de Memoria Viva y a la experiencia construida.":"A look at the Memoria Viva ecosystem and the experience we built.","Tu navegador no reproduce este video.":"Your browser can’t play this video.","Descargar video":"Download video","Visitar Memoria Viva":"Visit Memoria Viva","Abrir video ↗":"Open video ↗","La tecnología tiene":"Technology matters","sentido cuando conecta.":"when it connects.","Investigar antes de proponer":"Research before proposing","Comprender a los visitantes permite dar una intención clara a cada interacción.":"Understanding visitors gives a clear purpose to each interaction.","Diseñar en equipo":"Design as a team","La coordinación y el diálogo entre disciplinas conectan las ideas con su ejecución.":"Coordination and dialogue across disciplines connect ideas with execution.","Profundizar la validación":"Deepen validation","La siguiente evaluación debe observar comprensión, participación y recorrido en cada experiencia.":"The next evaluation should observe understanding, participation and the journey through each experience.","Diseño de interacción y experiencia del jugador en Unity.":"Interaction design and player experience in Unity.","Identidad de Memoria Viva, casa con raíces que simbolizan memoria y patrimonio":"Memoria Viva identity: a house with roots symbolizing memory and heritage","Ampliar: Pieza de presentación del Mapa de Memorias":"Enlarge: Presentation material for Mapa de Memorias","Pieza de presentación del Mapa de Memorias":"Presentation material for Mapa de Memorias","Ampliar: Pieza de presentación del Chismógrafo":"Enlarge: Presentation material for Chismógrafo","Pieza de presentación del Chismógrafo":"Presentation material for Chismógrafo","Presentación del proyecto Memoria Viva":"Memoria Viva project presentation","Memoria Viva | Simón Burgos":"Memoria Viva | Simón Burgos","Caso de UX Research y diseño de interacción para descubrir y compartir las historias de Las Matronas de Santa Fe de Antioquia.":"A UX Research and interaction design case to discover and share the stories of Las Matronas in Santa Fe de Antioquia.","Referentes":"References","Galería":"Gallery","03 / GAME DESIGN · PLAYER EXPERIENCE · UNITY":"03 / GAME DESIGN · PLAYER EXPERIENCE · UNITY","Invisible":"Invisible","Intruders.":"Intruders.","Una experiencia de terror donde la exploración y la narrativa ambiental construyen tensión de forma progresiva.":"A horror experience where exploration and environmental storytelling gradually build tension.","Experiencia para PC":"PC experience","Explorar la interacción":"Explore the interaction","Ver gameplay":"Watch gameplay","Game Design · Programación de gameplay":"Game Design · Gameplay programming","Herramientas":"Tools","Unity · C#":"Unity · C#","16 semanas":"16 weeks","Plataforma":"Platform","PC · Dos niveles jugables":"PC · Two playable levels","Diseñar tensión":"Designing tension","a través de la exploración.":"through exploration.","El jugador descubre la historia mientras aprende a moverse, buscar e interpretar el entorno.":"Players discover the story while learning to move, search and interpret their surroundings.","El juego plantea explorar una casa abandonada, encontrar notas de un ritual y sobrevivir a una presencia sobrenatural que se vuelve más peligrosa con el avance.":"The game involves exploring an abandoned house, finding ritual notes and surviving a supernatural presence that grows more dangerous as players progress.","El diseño combina progresión, narrativa ambiental e interacción. La intención es mantener la curiosidad y aumentar la tensión sin perder claridad sobre el objetivo.":"The design combines progression, environmental storytelling and interaction. It aims to maintain curiosity and increase tension while keeping the objective clear.","Participé en diseño de gameplay e implementación de sistemas de movimiento, interacción, coleccionables y lógica de juego.":"I contributed to gameplay design and the implementation of movement, interaction, collectibles and game logic systems.","Referentes y dirección":"References and direction","Entender la atmósfera":"Understand the atmosphere","antes de construirla.":"before building it.","Análisis de referentes como Resident Evil 7, Outlast y P.T., moodboard y exploración de conceptos.":"Analysis of references such as Resident Evil 7, Outlast and P.T., moodboarding and concept exploration.","Narrativa ambiental":"Environmental storytelling","El entorno y los objetos revelan la historia sin depender de explicaciones extensas.":"The environment and objects reveal the story without relying on lengthy explanations.","Vulnerabilidad":"Vulnerability","La amenaza y las posibilidades limitadas de defensa orientan la emoción del jugador.":"The threat and limited options for defense shape the player’s emotions.","Progresión":"Progression","La exploración inicial ayuda a familiarizarse con el entorno antes de aumentar el peligro.":"Initial exploration helps players get familiar with the environment before danger increases.","Exploración visual del espacio y la atmósfera.":"Visual exploration of space and atmosphere.","Referencia de atmósfera; material de inspiración.":"Atmosphere reference; inspiration material.","Experiencia del jugador":"Player experience","Una interacción clara.":"Clear interaction.","Una tensión creciente.":"Growing tension.","Recorrer el entorno y orientarse.":"Move through the environment and find your bearings.","Encontrar":"Find","Localizar y recoger las notas.":"Locate and collect the notes.","Evitar":"Avoid","Responder a la amenaza.":"Respond to the threat.","Avanzar":"Progress","Descubrir nuevas partes del relato.":"Discover new parts of the story.","Introducir la linterna":"Introduce the flashlight","Presentarla antes de que la oscuridad sea el principal obstáculo facilita comprender su utilidad.":"Introducing it before darkness becomes the main obstacle makes its purpose easier to understand.","Guiar desde el entorno":"Guide through the environment","La composición, la iluminación y la ubicación de notas ayudan a orientar la exploración.":"Composition, lighting and note placement help guide exploration.","Dar sentido a los objetos":"Give objects a purpose","Encontrar notas aporta contenido narrativo y permite progresar, conectando acción y objetivo.":"Finding notes adds narrative content and enables progress, connecting action with the objective.","Mantener la interfaz contenida":"Keep the interface restrained","Reducir la presencia del HUD conserva la atención en el espacio y la amenaza.":"Reducing HUD presence keeps attention on the space and the threat.","Nivel 1: familiarización con la casa, las notas y la linterna.":"Level 1: getting familiar with the house, notes and flashlight.","Nivel 2: una amenaza más activa y mayor tensión durante la exploración.":"Level 2: a more active threat and greater tension during exploration.","Implementación":"Implementation","Convertir el diseño":"Turn design","en comportamiento.":"into behavior.","Movimiento e interacción":"Movement and interaction","Control del jugador, detección de objetos y acciones implementadas con C#.":"Player control, object detection and actions implemented with C#.","Progresión y coleccionables":"Progression and collectibles","Notas, objetivos y lógica de avance para conectar exploración con narrativa.":"Notes, objectives and progression logic connecting exploration with narrative.","Amenaza y atmósfera":"Threat and atmosphere","Comportamiento del enemigo e iluminación orientados a la tensión progresiva.":"Enemy behavior and lighting designed around progressive tension.","C#":"C#","Diseño de niveles":"Level design","Interfaces, objetos":"Interfaces, objects","y lenguaje visual.":"and visual language.","Una selección de recursos del juego. Puedes ampliar cada imagen.":"A selection of game assets. You can enlarge each image.","Pantalla de inicio.":"Start screen.","Instrucciones de interacción.":"Interaction instructions.","Exploración de poses del personaje.":"Character pose exploration.","Recurso del entorno.":"Environment asset.","Linterna.":"Flashlight.","Nota del ritual.":"Ritual note.","Objeto del entorno.":"Environment object.","RECORRIDO EN VIDEO":"VIDEO WALKTHROUGH","Ver la experiencia en movimiento.":"See the experience in motion.","Exploración, atmósfera e interacción en el gameplay del proyecto.":"Exploration, atmosphere and interaction in the project gameplay.","Ver gameplay en YouTube":"Watch gameplay on YouTube","Balancear claridad":"Balance clarity","y emoción.":"and emotion.","El proyecto permitió relacionar mecánicas, diseño de niveles y narrativa con la experiencia del jugador. Mantener la tensión implica revisar también la orientación y la comprensión del objetivo.":"The project connected mechanics, level design and narrative with the player experience. Maintaining tension also means reviewing orientation and understanding of the objective.","Una siguiente evaluación puede observar si el jugador entiende los controles, identifica qué debe buscar y relaciona las notas con su progreso.":"A future evaluation can observe whether players understand the controls, identify what to look for and connect the notes with their progress.","Siguiente iteración":"Next iteration","Profundizar el comportamiento del enemigo, el sonido y las posibilidades de exploración.":"Develop enemy behavior, sound and exploration possibilities further.","Validación del recorrido":"Journey validation","Observar dudas de navegación, comprensión de objetos y señales necesarias para avanzar.":"Observe navigation difficulties, understanding of objects and cues needed to progress.","Investigación y diseño de interfaces para una experiencia de pedidos más clara.":"Research and interface design for a clearer ordering experience.","Afiche de Invisible Intruders con el personaje sobrenatural del juego":"Invisible Intruders poster featuring the game’s supernatural character","Ampliar: Bocetos de escenarios interiores y exteriores":"Enlarge: Sketches of indoor and outdoor environments","Bocetos de escenarios interiores y exteriores":"Sketches of indoor and outdoor environments","Ampliar: Referencia visual del moodboard de terror":"Enlarge: Visual reference from the horror moodboard","Referencia visual del moodboard de terror":"Visual reference from the horror moodboard","Ampliar: Vista del primer nivel del juego":"Enlarge: View of the game’s first level","Vista del primer nivel del juego":"View of the game’s first level","Ampliar: Vista del segundo nivel del juego":"Enlarge: View of the game’s second level","Vista del segundo nivel del juego":"View of the game’s second level","Ampliar: Pantalla de inicio de Invisible Intruders":"Enlarge: Invisible Intruders start screen","Pantalla de inicio de Invisible Intruders":"Invisible Intruders start screen","Ampliar: Pantalla con controles de movimiento y acciones":"Enlarge: Screen with movement controls and actions","Pantalla con controles de movimiento y acciones":"Screen with movement controls and actions","Ampliar: Sprites del personaje y sus direcciones":"Enlarge: Character sprites and directions","Sprites del personaje y sus direcciones":"Character sprites and directions","Ampliar: Objeto de mobiliario pixel art":"Enlarge: Pixel art furniture asset","Objeto de mobiliario pixel art":"Pixel art furniture asset","Ampliar: Sprite de la linterna":"Enlarge: Flashlight sprite","Sprite de la linterna":"Flashlight sprite","Ampliar: Sprite de una nota del ritual":"Enlarge: Ritual note sprite","Sprite de una nota del ritual":"Ritual note sprite","Ampliar: Sprite de un objeto del entorno":"Enlarge: Environment object sprite","Sprite de un objeto del entorno":"Environment object sprite","Invisible Intruders | Simón Burgos":"Invisible Intruders | Simón Burgos","Caso académico de diseño de videojuegos, interacción y desarrollo en Unity. Exploración, narrativa y experiencia del jugador.":"An academic case in game design, interaction and Unity development. Exploration, narrative and player experience.","Cerrar menú":"Close menu","Enviando…":"Sending…","Enviando tu mensaje.":"Sending your message.","Mensaje enviado. Gracias por escribirme.":"Message sent. Thanks for reaching out.","No pudimos confirmar el envío. Tu mensaje sigue aquí; también puedes escribirme a simonburgosb@gmail.com.":"We couldn’t confirm delivery. Your message is still here; you can also email me at simonburgosb@gmail.com.","Imagen del proyecto":"Project image","Idioma cambiado a español.":"Language changed to English.","Ampliar:":"Enlarge:"},"fr":{"Saltar al contenido":"Aller au contenu","SBB Designs":"SBB Designs","/ UI·UX":"/ UI·UX","Proyectos":"Projets","Sobre mí":"À propos","Contacto":"Contact","Descargar CV":"Télécharger le CV","(PDF, abre en otra pestaña)":"(PDF, s’ouvre dans un nouvel onglet)","DISEÑADOR UI/UX · MEDELLÍN":"DESIGNER UI/UX · MEDELLÍN","Entender primero.":"Comprendre d’abord.","Diseñar con":"Concevoir avec","propósito.":"intention.","Soy Simón Burgos. Conecto investigación, diseño de interacción y desarrollo para convertir problemas en experiencias digitales claras.":"Je suis Simón Burgos. Je relie la recherche, le design d’interaction et le développement pour transformer des problèmes en expériences numériques claires.","Explorar proyectos":"Explorer les projets","Ver mi CV":"Voir mon CV","(abre en otra pestaña)":"(s’ouvre dans un nouvel onglet)","Estudiante de Ingeniería en Diseño":"Étudiant en ingénierie","de Entretenimiento Digital.":"du divertissement numérique.","UI/UX + Frontend + Experiencias interactivas":"UI/UX + Frontend + Expériences interactives","DEL PROBLEMA AL PROTOTIPO":"DU PROBLÈME AU PROTOTYPE","CASO DESTACADO / 01":"PROJET À LA UNE / 01","Rappi UX Redesign":"Rappi UX Redesign","Trabajo seleccionado":"Projets sélectionnés","Problemas reales.":"Des problèmes concrets.","Decisiones con intención.":"Des décisions réfléchies.","Una selección de proyectos académicos que conecta investigación, interfaces y experiencias interactivas.":"Une sélection de projets universitaires associant recherche, interfaces et expériences interactives.","PRODUCT DESIGN":"DESIGN DE PRODUIT","01 / PROPUESTA DE REDISEÑO":"01 / PROPOSITION DE REFONTE","Menos incertidumbre":"Moins d’incertitude","al pedir con Rappi.":"pour commander avec Rappi.","Una propuesta de experiencia que aborda la transparencia del pedido, el seguimiento y la visibilidad del soporte.":"Une proposition d’expérience qui améliore la transparence des commandes, le suivi et la visibilité de l’assistance.","UX Research":"Recherche UX","Service Design":"Design de services","UI Design":"Design UI","Mi rol":"Mon rôle","Investigación, síntesis y diseño de producto.":"Recherche, synthèse et design de produit.","Explorar caso de estudio":"Explorer l’étude de cas","INTERACTION DESIGN":"DESIGN D’INTERACTION","02 / EXPERIENCIA CULTURAL":"02 / EXPÉRIENCE CULTURELLE","Memoria Viva":"Memoria Viva","Reconectar a visitantes con las historias de Las Matronas mediante tres experiencias físicas y digitales.":"Reconnecter les visiteurs aux histoires de Las Matronas à travers trois expériences physiques et numériques.","Interacción":"Interaction","Desarrollo":"Développement","Explorar caso de estudio ↗":"Explorer l’étude de cas ↗","PLAYER EXPERIENCE":"EXPÉRIENCE JOUEUR","03 / DISEÑO DE VIDEOJUEGOS":"03 / CONCEPTION DE JEUX VIDÉO","Invisible Intruders":"Invisible Intruders","Exploración, narrativa ambiental y tensión progresiva en una experiencia de terror construida en Unity.":"Exploration, narration environnementale et tension progressive dans une expérience d’horreur réalisée avec Unity.","Game Design":"Conception de jeux","UX del jugador":"UX du joueur","Unity":"Unity","SIMÓN BURGOS / DISEÑO + INTERACCIÓN":"SIMÓN BURGOS / DESIGN + INTERACTION","02 / Sobre mí":"02 / À propos","Del porqué":"Du pourquoi","al cómo.":"au comment.","Me interesa entender a las personas y convertir lo que aprendo en productos que se puedan explorar, probar y construir.":"Je cherche à comprendre les personnes et à transformer ce que j’apprends en produits que l’on peut explorer, tester et réaliser.","Estudio Ingeniería en Diseño de Entretenimiento Digital, con enfoque en experiencias interactivas. Mi interés principal es UI/UX; el desarrollo frontend y Unity me permiten conectar las decisiones de diseño con su implementación.":"J’étudie l’ingénierie du design de divertissement numérique, avec un intérêt pour les expériences interactives. Je me concentre sur l’UI/UX ; le développement frontend et Unity me permettent de relier les décisions de design à leur réalisation.","He participado en proyectos de productos digitales, patrimonio cultural y videojuegos. Busco seguir creciendo en equipos donde la investigación y el diseño tengan un papel activo en la construcción del producto.":"J’ai participé à des projets de produits numériques, de patrimoine culturel et de jeux vidéo. Je souhaite évoluer dans des équipes où la recherche et le design jouent un rôle actif dans la création du produit.","CV":"CV","Mi perfil profesional":"Mon profil professionnel","Descarga mi CV.":"Téléchargez mon CV.","Elige tu idioma para conocer mi formación, capacidades y experiencia.":"Choisissez votre langue pour découvrir ma formation, mes compétences et mon expérience.","PDF / ES":"PDF / ES","Currículum en español":"CV en espagnol","Descargar PDF":"Télécharger le PDF","PDF / EN":"PDF / EN","Currículum en inglés":"CV en anglais","PDF / FR":"PDF / FR","Currículum en francés":"CV en français","Cómo trabajo":"Ma méthode","Investigar. Diseñar. Construir.":"Rechercher. Concevoir. Réaliser.","Capacidades que aplico en proyectos, desde comprender el contexto hasta materializar una experiencia.":"Des compétences que j’applique aux projets, de la compréhension du contexte à la réalisation d’une expérience.","Comprender el problema":"Comprendre le problème","Investigación secundaria, entrevistas, encuestas y síntesis de hallazgos para definir oportunidades de diseño.":"Recherche secondaire, entretiens, questionnaires et synthèse des résultats pour définir des opportunités de design.","Dar forma a la experiencia":"Donner forme à l’expérience","Journeys, flujos de interacción, wireframes, diseño de interfaces y prototipos en Figma.":"Parcours, flux d’interaction, wireframes, design d’interfaces et prototypes dans Figma.","Conectar diseño y desarrollo":"Relier design et développement","HTML, CSS y JavaScript para web; Unity y C# para experiencias interactivas y videojuegos.":"HTML, CSS et JavaScript pour le web ; Unity et C# pour les expériences interactives et les jeux vidéo.","Investigación en Memoria Viva ↗":"Recherche dans Memoria Viva ↗","Interfaces en Rappi ↗":"Interfaces dans Rappi ↗","Desarrollo en Unity ↗":"Développement avec Unity ↗","04 / Contacto":"04 / Contact","Hablemos de":"Parlons de","lo que viene.":"la suite.","Si estás buscando un perfil UI/UX con interés en investigación, diseño de producto e implementación, me gustaría conversar.":"Si vous recherchez un profil UI/UX intéressé par la recherche, le design de produit et sa réalisation, j’aimerais en discuter.","simonburgosb@gmail.com ↗":"simonburgosb@gmail.com ↗","Conectar en LinkedIn ↗":"Me retrouver sur LinkedIn ↗","Nombre":"Nom","Correo electrónico":"Adresse e-mail","Mensaje":"Message","Dejar vacío":"Laisser vide","Enviar mensaje":"Envoyer le message","También puedes escribirme directamente por correo.":"Vous pouvez aussi m’écrire directement par e-mail.","Simón Burgos":"Simón Burgos","Investigación, diseño e interacción.":"Recherche, design et interaction.","LinkedIn ↗":"LinkedIn ↗","GitHub ↗":"GitHub ↗","Descargar mi CV":"Télécharger mon CV","· Diseñado y construido por Simón.":"· Conçu et développé par Simón.","Idioma":"Langue","×":"×","SBB Designs, inicio":"SBB Designs, accueil","Abrir menú":"Ouvrir le menu","Navegación principal":"Navigation principale","Explorar el caso Rappi UX Redesign":"Explorer le projet Rappi UX Redesign","Propuesta de resumen del pedido de Rappi":"Proposition de récapitulatif de commande Rappi","Propuesta de página de inicio de Rappi":"Proposition de page d’accueil Rappi","Propuesta de seguimiento del pedido de Rappi":"Proposition de suivi de commande Rappi","Ver el caso Rappi UX Redesign":"Voir le projet Rappi UX Redesign","Inicio personalizado de la propuesta de Rappi":"Accueil personnalisé de la proposition Rappi","Seguimiento de pedidos en la propuesta de Rappi":"Suivi des commandes dans la proposition Rappi","Resumen del pedido en la propuesta de Rappi":"Récapitulatif de commande dans la proposition Rappi","Áreas del proyecto":"Domaines du projet","Ver el caso Memoria Viva":"Voir le projet Memoria Viva","Identidad de Memoria Viva: una casa que conecta patrimonio y memoria":"Identité de Memoria Viva : une maison qui relie patrimoine et mémoire","Ver el caso Invisible Intruders":"Voir le projet Invisible Intruders","Pantalla de inicio del juego Invisible Intruders":"Écran d’accueil du jeu Invisible Intruders","Retrato de Simón Burgos":"Portrait de Simón Burgos","Descargar CV en español (PDF)":"Télécharger le CV en espagnol (PDF)","Descargar CV en inglés (PDF)":"Télécharger le CV en anglais (PDF)","Descargar CV en francés (PDF)":"Télécharger le CV en français (PDF)","¿Cómo te llamas?":"Comment vous appelez-vous ?","tu@correo.com":"vous@exemple.fr","Cuéntame sobre la oportunidad o el proyecto.":"Parlez-moi de l’opportunité ou du projet.","Idioma del sitio":"Langue du site","Cerrar imagen":"Fermer l’image","Simón Burgos | Diseñador UI/UX":"Simón Burgos | Designer UI/UX","Portafolio de Simón Burgos: investigación UX, diseño de interfaces y desarrollo de experiencias interactivas. Explora los casos de Rappi, Memoria Viva e Invisible Intruders.":"Portfolio de Simón Burgos : recherche UX, design d’interfaces et développement d’expériences interactives. Découvrez Rappi, Memoria Viva et Invisible Intruders.","Contacto desde el portafolio de Simón Burgos":"Contact depuis le portfolio de Simón Burgos","← Proyectos":"← Projets","Contexto":"Contexte","Investigación":"Recherche","Journey":"Parcours","Decisiones":"Décisions","Prototipo":"Prototype","01 / UX RESEARCH · SERVICE DESIGN · UI DESIGN":"01 / RECHERCHE UX · DESIGN DE SERVICES · DESIGN UI","Rappi UX":"Rappi UX","Redesign.":"Redesign.","Reducir la incertidumbre al pedir: información clara, seguimiento visible y una experiencia más fácil de entender.":"Réduire l’incertitude lors d’une commande : des informations claires, un suivi visible et une expérience plus facile à comprendre.","Proyecto académico":"Projet universitaire","Propuesta conceptual":"Proposition conceptuelle","Explorar el proceso":"Explorer la démarche","Abrir prototipo":"Ouvrir le prototype","UX Research · Service Design · Product Design":"Recherche UX · Design de services · Design de produit","Enfoque":"Objectif","Confianza y transparencia":"Confiance et transparence","Entregable":"Livrable","Prototipo de alta fidelidad":"Prototype haute fidélité","Rediseño académico independiente":"Refonte universitaire indépendante","El contexto":"Le contexte","La espera no es":"L’attente n’est pas","el único problema.":"le seul problème.","La incertidumbre aparece cuando el usuario no entiende qué está pasando con su pedido.":"L’incertitude apparaît lorsque les utilisateurs ne comprennent pas ce qui se passe avec leur commande.","El proyecto explora fricciones relacionadas con tiempos de entrega, claridad de precios y acceso al soporte dentro de la experiencia de Rappi.":"Le projet explore les difficultés liées aux délais de livraison, à la clarté des prix et à l’accès à l’assistance dans l’expérience Rappi.","El objetivo del rediseño es aumentar la claridad en los momentos críticos: elegir, confirmar, esperar y resolver una dificultad.":"La refonte vise à améliorer la clarté aux moments clés : choisir, confirmer, attendre et résoudre un problème.","Mi participación se centró en la síntesis de investigación, el journey, el análisis del servicio y el diseño de la propuesta de interfaz.":"Ma contribution s’est concentrée sur la synthèse de la recherche, le parcours, l’analyse du service et la conception de l’interface proposée.","De los hallazgos":"Des résultats","a las oportunidades.":"aux opportunités.","Investigación secundaria y síntesis mediante Atomic Research para conectar hechos, interpretaciones y recomendaciones.":"Recherche secondaire et synthèse avec Atomic Research pour relier faits, interprétations et recommandations.","Relación entre hallazgos de investigación, interpretación y respuesta de diseño":"Lien entre résultats de recherche, interprétation et réponse de design","Hallazgo sintetizado":"Résultat synthétisé","Interpretación":"Interprétation","Oportunidad":"Opportunité","Incertidumbre durante la entrega.":"Incertitude pendant la livraison.","La falta de información dificulta comprender una demora.":"Le manque d’information rend les retards difficiles à comprendre.","Hacer visible el progreso y explicar el estado del pedido.":"Rendre la progression visible et expliquer l’état de la commande.","Promociones y descuentos difíciles de entender.":"Des promotions et réductions difficiles à comprendre.","El ahorro pierde valor cuando el usuario no logra verificarlo.":"Les économies perdent leur valeur lorsque les utilisateurs ne peuvent pas les vérifier.","Mostrar cargos y ahorros en un resumen claro.":"Présenter les frais et les économies dans un récapitulatif clair.","Fricción al buscar ayuda.":"Des difficultés pour obtenir de l’aide.","La resolución del problema influye en la confianza en el servicio.":"La résolution d’un problème influence la confiance dans le service.","Dar visibilidad al soporte y al estado de una solicitud.":"Rendre l’assistance et l’état d’une demande visibles.","Estos hallazgos orientan la propuesta de diseño; la validación del prototipo es una fase de trabajo diferenciada.":"Ces résultats orientent la proposition de design ; la validation du prototype constitue une phase distincte.","Customer journey":"Parcours client","Una experiencia,":"Une expérience,","seis momentos.":"six moments.","El recorrido permite ubicar los puntos de incertidumbre y las oportunidades de comunicación.":"Le parcours permet de situer les moments d’incertitude et les opportunités de communication.","Descubrir":"Découvrir","Abrir la app para resolver una necesidad inmediata.":"Ouvrir l’application pour répondre à un besoin immédiat.","Explorar":"Explorer","Comparar opciones, promociones y tiempos de entrega.":"Comparer les options, les promotions et les délais de livraison.","Confirmar":"Confirmer","Entender el total y revisar el pedido antes de pagar.":"Comprendre le total et vérifier la commande avant de payer.","Esperar":"Attendre","Saber qué ocurre y cuánto falta para recibirlo.":"Savoir ce qui se passe et combien de temps il reste avant la livraison.","Resolver":"Résoudre","Acceder a ayuda cuando algo no sale como se esperaba.":"Obtenir de l’aide lorsqu’un problème survient.","Volver":"Revenir","Decidir si la experiencia merece una nueva compra.":"Décider si l’expérience mérite un nouvel achat.","SERVICE DESIGN":"DESIGN DE SERVICES","La interfaz también depende del servicio.":"L’interface dépend aussi du service.","Frente al usuario":"Expérience visible","Precios legibles, estado del pedido y comunicación de entrega.":"Prix lisibles, état de la commande et communication sur la livraison.","Operación":"Opérations","Verificación de pedidos, estimaciones de tiempo y escalamiento.":"Vérification des commandes, estimations de délais et escalade des demandes.","Soporte":"Assistance","Acceso a ayuda, estado de solicitudes y recuperación de confianza.":"Accès à l’aide, état des demandes et rétablissement de la confiance.","Decisiones de diseño":"Décisions de design","Hacer visible":"Rendre visible","lo que importa.":"l’essentiel.","01 / SEGUIMIENTO":"01 / SUIVI","Explicar el progreso,":"Expliquer la progression,","no solo la espera.":"pas seulement l’attente.","La propuesta presenta el estado de preparación, el tiempo estimado y el recorrido de entrega en una misma experiencia.":"La proposition réunit l’état de préparation, le délai estimé et le parcours de livraison dans une même expérience.","Conexión con el hallazgo":"Lien avec le résultat","Frente a la incertidumbre, el diseño prioriza información de estado y una lectura rápida del progreso.":"Pour répondre à l’incertitude, le design privilégie les informations d’état et une lecture rapide de la progression.","Seguimiento: tiempo estimado y estado del pedido.":"Suivi : délai estimé et état de la commande.","02 / CONFIRMACIÓN":"02 / CONFIRMATION","Dar confianza":"Donner confiance","antes de pagar.":"avant de payer.","El pedido, los cargos y el total se organizan antes de la confirmación para que la decisión se tome con información visible.":"La commande, les frais et le total sont organisés avant la confirmation pour permettre une décision fondée sur des informations visibles.","La claridad de costos responde a las dificultades para interpretar precios y promociones.":"La clarté des coûts répond aux difficultés d’interprétation des prix et des promotions.","Confirmación: resumen y desglose del total.":"Confirmation : récapitulatif et détail du total.","03 / VERIFICACIÓN":"03 / VÉRIFICATION","Un pedido":"Une commande","más fácil de revisar.":"plus facile à vérifier.","La propuesta incorpora revisión visual y confirmación de recogida para hacer más comprensible la verificación del pedido.":"La proposition ajoute une vérification visuelle et une confirmation de retrait pour rendre le contrôle de la commande plus compréhensible.","Alcance de la propuesta":"Portée de la proposition","Estas funciones requieren coordinación entre la interfaz, la operación y el soporte del servicio.":"Ces fonctions nécessitent une coordination entre l’interface, les opérations et l’assistance du service.","Verificación: información de recogida y confirmación visual.":"Vérification : informations de retrait et confirmation visuelle.","Alta fidelidad":"Haute fidélité","La propuesta":"La proposition","en pantalla.":"à l’écran.","Explora las pantallas en detalle o recorre el prototipo interactivo en Figma.":"Explorez les écrans en détail ou parcourez le prototype interactif dans Figma.","01 / Inicio":"01 / Accueil","02 / Explorar":"02 / Explorer","03 / Revisar pedido":"03 / Vérifier la commande","04 / Confirmar":"04 / Confirmer","05 / Seguir pedido":"05 / Suivre la commande","06 / Entender el estado":"06 / Comprendre l’état","Recorrer el prototipo en Figma":"Parcourir le prototype dans Figma","Aprendizaje y validación":"Apprentissages et validation","Diseñar confianza":"Concevoir la confiance","requiere comprobarla.":"exige de la vérifier.","El análisis del servicio ayudó a identificar oportunidades que van más allá de la estética. La transparencia del pedido y la claridad de la comunicación guiaron la propuesta.":"L’analyse du service a permis de repérer des opportunités au-delà de l’esthétique. La transparence des commandes et la clarté de la communication ont guidé la proposition.","La siguiente fase de validación debe comprobar si las personas entienden el estado de su pedido, interpretan los cargos y encuentran ayuda cuando la necesitan.":"La prochaine phase de validation doit vérifier si les personnes comprennent l’état de leur commande, interprètent les frais et trouvent de l’aide au besoin.","Tareas de prueba":"Tâches de test","Revisar el total, localizar el estado del pedido y encontrar una opción de ayuda.":"Vérifier le total, repérer l’état de la commande et trouver une option d’aide.","Qué observar":"Éléments à observer","Éxito de la tarea, errores de interpretación, tiempo y percepción de claridad.":"Réussite des tâches, erreurs d’interprétation, temps et clarté perçue.","Siguiente proyecto":"Projet suivant","Investigación e interacción para reconectar con el patrimonio cultural.":"Recherche et interaction pour renouer avec le patrimoine culturel.","Secciones del caso":"Sections de l’étude de cas","Resumen del pedido en el prototipo de Rappi":"Récapitulatif de commande du prototype Rappi","Pantalla de inicio del prototipo de Rappi":"Page d’accueil du prototype Rappi","Seguimiento en el prototipo de Rappi":"Suivi dans le prototype Rappi","Ampliar: Propuesta de seguimiento del pedido":"Agrandir : Proposition de suivi de commande","Propuesta de seguimiento del pedido":"Proposition de suivi de commande","Ampliar: Propuesta de pago con desglose de costos":"Agrandir : Proposition de paiement avec détail des coûts","Propuesta de pago con desglose de costos":"Proposition de paiement avec détail des coûts","Ampliar: Propuesta de confirmación visual de recogida":"Agrandir : Proposition de confirmation visuelle de retrait","Propuesta de confirmación visual de recogida":"Proposition de confirmation visuelle de retrait","Ampliar: Inicio personalizado del prototipo":"Agrandir : Accueil personnalisé du prototype","Inicio personalizado del prototipo":"Accueil personnalisé du prototype","Ampliar: Detalle de restaurante y productos":"Agrandir : Détail du restaurant et des produits","Detalle de restaurante y productos":"Détail du restaurant et des produits","Ampliar: Resumen del pedido con productos y entrega":"Agrandir : Récapitulatif de commande avec produits et livraison","Resumen del pedido con productos y entrega":"Récapitulatif de commande avec produits et livraison","Ampliar: Pantalla de pago y desglose de cargos":"Agrandir : Écran de paiement et détail des frais","Pantalla de pago y desglose de cargos":"Écran de paiement et détail des frais","Ampliar: Mapa y seguimiento del pedido":"Agrandir : Carte et suivi de la commande","Mapa y seguimiento del pedido":"Carte et suivi de la commande","Ampliar: Estado de preparación y tiempo estimado":"Agrandir : État de préparation et délai estimé","Estado de preparación y tiempo estimado":"État de préparation et délai estimé","Rappi UX Redesign | Simón Burgos":"Rappi UX Redesign | Simón Burgos","Caso académico de UX Research, Service Design y diseño de interfaces para mejorar la claridad de la experiencia de pedidos.":"Un projet universitaire de recherche UX, de design de services et d’interfaces pour améliorer la clarté de l’expérience de commande.","Experiencias":"Expériences","Proceso":"Démarche","Aprendizajes":"Apprentissages","02 / UX RESEARCH · INTERACTION DESIGN":"02 / RECHERCHE UX · DESIGN D’INTERACTION","Memoria":"Memoria","Viva.":"Viva.","Convertir la historia de Las Matronas de Santa Fe de Antioquia en una experiencia que se explora, se comparte y se recuerda.":"Transformer les histoires de Las Matronas de Santa Fe de Antioquia en une expérience à explorer, partager et mémoriser.","Experiencia física + digital":"Expérience physique + numérique","Explorar las experiencias":"Explorer les expériences","Visitar el proyecto":"Visiter le projet","PATRIMONIO · HISTORIAS · PERSONAS":"PATRIMOINE · HISTOIRES · PERSONNES","Liderazgo · UX Research · Interacción · Desarrollo":"Coordination · Recherche UX · Interaction · Développement","Duración":"Durée","Un semestre académico":"Un semestre universitaire","Equipo":"Équipe","Multidisciplinario":"Pluridisciplinaire","Entregables":"Livrables","Landing + tres experiencias interactivas":"Page de présentation + trois expériences interactives","El reto":"Le défi","Pasar de observar":"De l’observation","a participar.":"à la participation.","¿Cómo acercar el patrimonio cultural a las personas a través de la interacción?":"Comment rapprocher le patrimoine culturel des personnes grâce à l’interaction ?","El proyecto propone una forma participativa de descubrir las historias de Las Matronas. El reto era conectar el contenido histórico con la curiosidad de los visitantes y con experiencias que pudieran compartir.":"Le projet propose une manière participative de découvrir les histoires de Las Matronas. Le défi consistait à relier le contenu historique à la curiosité des visiteurs et à des expériences qu’ils pouvaient partager.","La oportunidad estaba en combinar objetos físicos, historias y medios digitales, manteniendo el patrimonio como centro de la experiencia.":"L’opportunité consistait à associer objets physiques, histoires et médias numériques tout en plaçant le patrimoine au centre de l’expérience.","Coordiné el equipo y participé en investigación, definición de conceptos, flujos de interacción, prototipado y apoyo al desarrollo.":"J’ai coordonné l’équipe et participé à la recherche, à la définition des concepts, aux flux d’interaction, au prototypage et au soutien au développement.","Escuchar para":"Écouter pour","diseñar la interacción.":"concevoir l’interaction.","Investigación secundaria, entrevistas, encuestas y síntesis mediante journey y agrupación de hallazgos.":"Recherche secondaire, entretiens, questionnaires et synthèse à travers le parcours et le regroupement des résultats.","Investigar el contexto":"Étudier le contexte","Explorar referentes de museos, exposiciones interactivas y experiencias inclusivas.":"Explorer des références de musées, d’expositions interactives et d’expériences inclusives.","Escuchar a visitantes":"Écouter les visiteurs","Conocer percepciones sobre la historia, las interacciones y los espacios culturales.":"Comprendre les perceptions de l’histoire, des interactions et des espaces culturels.","Sintetizar oportunidades":"Synthétiser les opportunités","Relacionar necesidades, puntos de fricción e ideas de interacción para definir los productos.":"Relier besoins, points de friction et idées d’interaction pour définir les produits.","Conexión entre los hallazgos de Memoria Viva y las decisiones de interacción":"Lien entre les résultats de Memoria Viva et les décisions d’interaction","Respuesta de diseño":"Réponse de design","Interés por descubrir historias mediante la interacción.":"Intérêt pour la découverte d’histoires à travers l’interaction.","Experiencias basadas en exploración y participación activa.":"Expériences fondées sur l’exploration et la participation active.","Curiosidad al manipular objetos que revelan contenido.":"Curiosité suscitée par la manipulation d’objets qui révèlent du contenu.","Acciones físicas como punto de entrada a narrativas digitales.":"Actions physiques comme point d’entrée vers des récits numériques.","Valor de las experiencias compartidas.":"La valeur des expériences partagées.","Mecánicas que promueven conversación y memoria colectiva.":"Mécaniques favorisant la conversation et la mémoire collective.","Necesidad de interacciones fáciles de entender.":"Le besoin d’interactions faciles à comprendre.","Flujos sencillos que mantienen la atención en la historia.":"Parcours simples qui maintiennent l’attention sur l’histoire.","El ecosistema":"L’écosystème","Tres formas":"Trois façons","de conectar con la historia.":"de se relier à l’histoire.","Cada experiencia propone una relación distinta con el patrimonio: descubrir, explorar y compartir.":"Chaque expérience propose une relation différente au patrimoine : découvrir, explorer et partager.","PRODUCTO 01 / MAXILIBRO":"PRODUIT 01 / MAXILIBRO","Descubrir historias":"Découvrir des histoires","en un libro interactivo.":"dans un livre interactif.","Un libro de gran formato que combina interacción física, ilustraciones y contenido multimedia para transformar la lectura en una experiencia compartida.":"Un livre grand format associant interaction physique, illustrations et contenu multimédia pour transformer la lecture en expérience partagée.","Mi participación conectó los hallazgos de investigación con el concepto de interacción y el prototipado de la experiencia.":"Ma contribution a relié les résultats de recherche au concept d’interaction et au prototypage de l’expérience.","Storytelling":"Narration","Interacción física":"Interaction physique","Visión artificial":"Vision par ordinateur","Lógica de la experiencia":"Logique de l’expérience","Acercarse al libro y descubrir su contenido.":"S’approcher du livre et découvrir son contenu.","Interactuar":"Interagir","Una acción física da paso a la historia.":"Une action physique ouvre le récit.","Compartir":"Partager","La narración abre una conversación entre visitantes.":"La narration ouvre une conversation entre les visiteurs.","Esquema explicativo del concepto de interacción.":"Schéma explicatif du concept d’interaction.","PRODUCTO 02 / MAPA DE MEMORIAS":"PRODUIT 02 / MAPA DE MEMORIAS","Explorar lugares.":"Explorer des lieux.","Encontrar relatos.":"Découvrir des récits.","Un mapa interactivo que conecta ubicaciones y objetos de Las Matronas con historias de Santa Fe de Antioquia.":"Une carte interactive reliant les lieux et les objets de Las Matronas aux histoires de Santa Fe de Antioquia.","La navegación propone descubrir contenido a través de la exploración del territorio y de sus memorias.":"La navigation invite à découvrir le contenu à travers l’exploration du territoire et de ses mémoires.","Exploración":"Exploration","Narrativa":"Narration","Mapa interactivo":"Carte interactive","Pieza de presentación del producto Mapa de Memorias.":"Support de présentation du produit Mapa de Memorias.","PRODUCTO 03 / CHISMÓGRAFO":"PRODUIT 03 / CHISMÓGRAFO","La memoria también":"La mémoire se construit","se construye al compartir.":"aussi en partageant.","Inspirado en los chismógrafos tradicionales, invita a los visitantes a contar sus historias y relacionarlas con relatos de otras personas.":"Inspiré des chismógrafos traditionnels, le dispositif invite les visiteurs à raconter leurs histoires et à les relier aux récits d’autres personnes.","La interacción vincula recuerdos individuales con memoria colectiva y promueve la conversación.":"L’interaction relie les souvenirs individuels à la mémoire collective et favorise la conversation.","Participación":"Participation","Memoria colectiva":"Mémoire collective","Interacción social":"Interaction sociale","Explorar el Chismógrafo ↗":"Explorer le Chismógrafo ↗","Pieza de presentación del producto Chismógrafo.":"Support de présentation du produit Chismógrafo.","Proceso y contribución":"Démarche et contribution","Conectar investigación":"Relier la recherche","con una experiencia funcional.":"à une expérience fonctionnelle.","Conceptos y flujos":"Concepts et parcours","Transformar hallazgos en ideas de interacción y recorridos para cada experiencia.":"Transformer les résultats en idées d’interaction et en parcours pour chaque expérience.","Wireframes y prototipos":"Wireframes et prototypes","Participar en la revisión de estructuras, navegación y comportamiento antes del desarrollo.":"Participer à la révision des structures, de la navigation et du comportement avant le développement.","Lenguaje visual":"Langage visuel","Colaborar en la identidad y en los componentes de las experiencias.":"Collaborer à l’identité et aux composants des expériences.","Implementación y coordinación":"Réalisation et coordination","Apoyar el desarrollo, organizar tareas y mantener alineados los objetivos del equipo.":"Soutenir le développement, organiser les tâches et maintenir l’alignement des objectifs de l’équipe.","La experiencia":"L’expérience","Del concepto":"Du concept","al recorrido.":"au parcours.","Un vistazo al ecosistema de Memoria Viva y a la experiencia construida.":"Un aperçu de l’écosystème Memoria Viva et de l’expérience réalisée.","Tu navegador no reproduce este video.":"Votre navigateur ne peut pas lire cette vidéo.","Descargar video":"Télécharger la vidéo","Visitar Memoria Viva":"Visiter Memoria Viva","Abrir video ↗":"Ouvrir la vidéo ↗","La tecnología tiene":"La technologie a du sens","sentido cuando conecta.":"quand elle crée du lien.","Investigar antes de proponer":"Rechercher avant de proposer","Comprender a los visitantes permite dar una intención clara a cada interacción.":"Comprendre les visiteurs permet de donner une intention claire à chaque interaction.","Diseñar en equipo":"Concevoir en équipe","La coordinación y el diálogo entre disciplinas conectan las ideas con su ejecución.":"La coordination et le dialogue entre disciplines relient les idées à leur réalisation.","Profundizar la validación":"Approfondir la validation","La siguiente evaluación debe observar comprensión, participación y recorrido en cada experiencia.":"La prochaine évaluation doit observer la compréhension, la participation et le parcours dans chaque expérience.","Diseño de interacción y experiencia del jugador en Unity.":"Design d’interaction et expérience joueur avec Unity.","Identidad de Memoria Viva, casa con raíces que simbolizan memoria y patrimonio":"Identité de Memoria Viva : une maison aux racines symbolisant la mémoire et le patrimoine","Ampliar: Pieza de presentación del Mapa de Memorias":"Agrandir : Support de présentation de Mapa de Memorias","Pieza de presentación del Mapa de Memorias":"Support de présentation de Mapa de Memorias","Ampliar: Pieza de presentación del Chismógrafo":"Agrandir : Support de présentation de Chismógrafo","Pieza de presentación del Chismógrafo":"Support de présentation de Chismógrafo","Presentación del proyecto Memoria Viva":"Présentation du projet Memoria Viva","Memoria Viva | Simón Burgos":"Memoria Viva | Simón Burgos","Caso de UX Research y diseño de interacción para descubrir y compartir las historias de Las Matronas de Santa Fe de Antioquia.":"Un projet de recherche UX et de design d’interaction pour découvrir et partager les histoires de Las Matronas de Santa Fe de Antioquia.","Referentes":"Références","Galería":"Galerie","03 / GAME DESIGN · PLAYER EXPERIENCE · UNITY":"03 / CONCEPTION DE JEUX · EXPÉRIENCE JOUEUR · UNITY","Invisible":"Invisible","Intruders.":"Intruders.","Una experiencia de terror donde la exploración y la narrativa ambiental construyen tensión de forma progresiva.":"Une expérience d’horreur où l’exploration et la narration environnementale construisent progressivement la tension.","Experiencia para PC":"Expérience sur PC","Explorar la interacción":"Explorer l’interaction","Ver gameplay":"Voir le gameplay","Game Design · Programación de gameplay":"Conception de jeux · Programmation du gameplay","Herramientas":"Outils","Unity · C#":"Unity · C#","16 semanas":"16 semaines","Plataforma":"Plateforme","PC · Dos niveles jugables":"PC · Deux niveaux jouables","Diseñar tensión":"Concevoir la tension","a través de la exploración.":"par l’exploration.","El jugador descubre la historia mientras aprende a moverse, buscar e interpretar el entorno.":"Le joueur découvre l’histoire tout en apprenant à se déplacer, à chercher et à interpréter l’environnement.","El juego plantea explorar una casa abandonada, encontrar notas de un ritual y sobrevivir a una presencia sobrenatural que se vuelve más peligrosa con el avance.":"Le jeu consiste à explorer une maison abandonnée, à trouver les notes d’un rituel et à survivre à une présence surnaturelle de plus en plus dangereuse au fil de la progression.","El diseño combina progresión, narrativa ambiental e interacción. La intención es mantener la curiosidad y aumentar la tensión sin perder claridad sobre el objetivo.":"Le design associe progression, narration environnementale et interaction. Il vise à maintenir la curiosité et à accroître la tension tout en gardant un objectif clair.","Participé en diseño de gameplay e implementación de sistemas de movimiento, interacción, coleccionables y lógica de juego.":"J’ai participé au design du gameplay et à la réalisation des systèmes de déplacement, d’interaction, d’objets à collecter et de logique de jeu.","Referentes y dirección":"Références et direction","Entender la atmósfera":"Comprendre l’atmosphère","antes de construirla.":"avant de la construire.","Análisis de referentes como Resident Evil 7, Outlast y P.T., moodboard y exploración de conceptos.":"Analyse de références comme Resident Evil 7, Outlast et P.T., moodboard et exploration de concepts.","Narrativa ambiental":"Narration environnementale","El entorno y los objetos revelan la historia sin depender de explicaciones extensas.":"L’environnement et les objets révèlent l’histoire sans dépendre de longues explications.","Vulnerabilidad":"Vulnérabilité","La amenaza y las posibilidades limitadas de defensa orientan la emoción del jugador.":"La menace et les possibilités limitées de défense orientent les émotions du joueur.","Progresión":"Progression","La exploración inicial ayuda a familiarizarse con el entorno antes de aumentar el peligro.":"L’exploration initiale aide le joueur à se familiariser avec l’environnement avant l’augmentation du danger.","Exploración visual del espacio y la atmósfera.":"Exploration visuelle de l’espace et de l’atmosphère.","Referencia de atmósfera; material de inspiración.":"Référence d’atmosphère ; support d’inspiration.","Experiencia del jugador":"Expérience joueur","Una interacción clara.":"Une interaction claire.","Una tensión creciente.":"Une tension croissante.","Recorrer el entorno y orientarse.":"Parcourir l’environnement et s’orienter.","Encontrar":"Trouver","Localizar y recoger las notas.":"Repérer et ramasser les notes.","Evitar":"Éviter","Responder a la amenaza.":"Réagir à la menace.","Avanzar":"Avancer","Descubrir nuevas partes del relato.":"Découvrir de nouvelles parties du récit.","Introducir la linterna":"Introduire la lampe torche","Presentarla antes de que la oscuridad sea el principal obstáculo facilita comprender su utilidad.":"La présenter avant que l’obscurité devienne le principal obstacle permet de mieux comprendre son utilité.","Guiar desde el entorno":"Guider par l’environnement","La composición, la iluminación y la ubicación de notas ayudan a orientar la exploración.":"La composition, l’éclairage et l’emplacement des notes aident à orienter l’exploration.","Dar sentido a los objetos":"Donner du sens aux objets","Encontrar notas aporta contenido narrativo y permite progresar, conectando acción y objetivo.":"Trouver des notes apporte du contenu narratif et permet de progresser, en reliant l’action à l’objectif.","Mantener la interfaz contenida":"Garder une interface discrète","Reducir la presencia del HUD conserva la atención en el espacio y la amenaza.":"Limiter la présence du HUD maintient l’attention sur l’espace et la menace.","Nivel 1: familiarización con la casa, las notas y la linterna.":"Niveau 1 : découverte de la maison, des notes et de la lampe torche.","Nivel 2: una amenaza más activa y mayor tensión durante la exploración.":"Niveau 2 : une menace plus active et une tension accrue pendant l’exploration.","Implementación":"Réalisation","Convertir el diseño":"Transformer le design","en comportamiento.":"en comportement.","Movimiento e interacción":"Déplacement et interaction","Control del jugador, detección de objetos y acciones implementadas con C#.":"Contrôle du joueur, détection d’objets et actions réalisés avec C#.","Progresión y coleccionables":"Progression et objets à collecter","Notas, objetivos y lógica de avance para conectar exploración con narrativa.":"Notes, objectifs et logique de progression pour relier exploration et narration.","Amenaza y atmósfera":"Menace et atmosphère","Comportamiento del enemigo e iluminación orientados a la tensión progresiva.":"Comportement de l’ennemi et éclairage orientés vers une tension progressive.","C#":"C#","Diseño de niveles":"Conception des niveaux","Interfaces, objetos":"Interfaces, objets","y lenguaje visual.":"et langage visuel.","Una selección de recursos del juego. Puedes ampliar cada imagen.":"Une sélection de ressources du jeu. Vous pouvez agrandir chaque image.","Pantalla de inicio.":"Écran d’accueil.","Instrucciones de interacción.":"Instructions d’interaction.","Exploración de poses del personaje.":"Exploration des poses du personnage.","Recurso del entorno.":"Ressource de l’environnement.","Linterna.":"Lampe torche.","Nota del ritual.":"Note du rituel.","Objeto del entorno.":"Objet de l’environnement.","RECORRIDO EN VIDEO":"PARCOURS EN VIDÉO","Ver la experiencia en movimiento.":"Voir l’expérience en mouvement.","Exploración, atmósfera e interacción en el gameplay del proyecto.":"Exploration, atmosphère et interaction dans le gameplay du projet.","Ver gameplay en YouTube":"Voir le gameplay sur YouTube","Balancear claridad":"Équilibrer clarté","y emoción.":"et émotion.","El proyecto permitió relacionar mecánicas, diseño de niveles y narrativa con la experiencia del jugador. Mantener la tensión implica revisar también la orientación y la comprensión del objetivo.":"Le projet a permis de relier mécaniques, conception des niveaux et narration à l’expérience du joueur. Maintenir la tension implique aussi de revoir l’orientation et la compréhension de l’objectif.","Una siguiente evaluación puede observar si el jugador entiende los controles, identifica qué debe buscar y relaciona las notas con su progreso.":"Une prochaine évaluation peut observer si le joueur comprend les commandes, identifie ce qu’il doit chercher et relie les notes à sa progression.","Siguiente iteración":"Prochaine itération","Profundizar el comportamiento del enemigo, el sonido y las posibilidades de exploración.":"Approfondir le comportement de l’ennemi, le son et les possibilités d’exploration.","Validación del recorrido":"Validation du parcours","Observar dudas de navegación, comprensión de objetos y señales necesarias para avanzar.":"Observer les difficultés de navigation, la compréhension des objets et les indications nécessaires pour progresser.","Investigación y diseño de interfaces para una experiencia de pedidos más clara.":"Recherche et design d’interfaces pour une expérience de commande plus claire.","Afiche de Invisible Intruders con el personaje sobrenatural del juego":"Affiche d’Invisible Intruders présentant le personnage surnaturel du jeu","Ampliar: Bocetos de escenarios interiores y exteriores":"Agrandir : Croquis d’environnements intérieurs et extérieurs","Bocetos de escenarios interiores y exteriores":"Croquis d’environnements intérieurs et extérieurs","Ampliar: Referencia visual del moodboard de terror":"Agrandir : Référence visuelle du moodboard d’horreur","Referencia visual del moodboard de terror":"Référence visuelle du moodboard d’horreur","Ampliar: Vista del primer nivel del juego":"Agrandir : Vue du premier niveau du jeu","Vista del primer nivel del juego":"Vue du premier niveau du jeu","Ampliar: Vista del segundo nivel del juego":"Agrandir : Vue du deuxième niveau du jeu","Vista del segundo nivel del juego":"Vue du deuxième niveau du jeu","Ampliar: Pantalla de inicio de Invisible Intruders":"Agrandir : Écran d’accueil d’Invisible Intruders","Pantalla de inicio de Invisible Intruders":"Écran d’accueil d’Invisible Intruders","Ampliar: Pantalla con controles de movimiento y acciones":"Agrandir : Écran des commandes de déplacement et d’action","Pantalla con controles de movimiento y acciones":"Écran des commandes de déplacement et d’action","Ampliar: Sprites del personaje y sus direcciones":"Agrandir : Sprites du personnage et de ses directions","Sprites del personaje y sus direcciones":"Sprites du personnage et de ses directions","Ampliar: Objeto de mobiliario pixel art":"Agrandir : Ressource de mobilier en pixel art","Objeto de mobiliario pixel art":"Ressource de mobilier en pixel art","Ampliar: Sprite de la linterna":"Agrandir : Sprite de la lampe torche","Sprite de la linterna":"Sprite de la lampe torche","Ampliar: Sprite de una nota del ritual":"Agrandir : Sprite d’une note du rituel","Sprite de una nota del ritual":"Sprite d’une note du rituel","Ampliar: Sprite de un objeto del entorno":"Agrandir : Sprite d’un objet de l’environnement","Sprite de un objeto del entorno":"Sprite d’un objet de l’environnement","Invisible Intruders | Simón Burgos":"Invisible Intruders | Simón Burgos","Caso académico de diseño de videojuegos, interacción y desarrollo en Unity. Exploración, narrativa y experiencia del jugador.":"Un projet universitaire de conception de jeux, d’interaction et de développement avec Unity. Exploration, narration et expérience joueur.","Cerrar menú":"Fermer le menu","Enviando…":"Envoi en cours…","Enviando tu mensaje.":"Envoi de votre message.","Mensaje enviado. Gracias por escribirme.":"Message envoyé. Merci de m’avoir écrit.","No pudimos confirmar el envío. Tu mensaje sigue aquí; también puedes escribirme a simonburgosb@gmail.com.":"Nous n’avons pas pu confirmer l’envoi. Votre message est conservé ; vous pouvez aussi m’écrire à simonburgosb@gmail.com.","Imagen del proyecto":"Image du projet","Idioma cambiado a español.":"Langue changée : français.","Ampliar:":"Agrandir :"}};
+  /* I18N_DICTIONARIES_END */
+  const languages = ['es', 'en', 'fr'];
+  const languageKey = 'sbb-designs-language';
+  let language = 'es';
+  const translate = source => language === 'es' ? source : (dictionaries[language]?.[source] ?? source);
+
+  // Se conservan los nodos originales: cambiar de idioma no reemplaza el HTML,
+  // ni elimina enlaces, iconos, saltos de línea o listeners de interacción.
+  const textBindings = [];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const parent = node.parentElement;
+    if (!parent || parent.closest('script,style,textarea,[data-no-translate],[data-language]')) continue;
+    const key = node.nodeValue.trim();
+    if (!key || !Object.hasOwn(dictionaries.en, key)) continue;
+    textBindings.push({ node, key, before: node.nodeValue.match(/^\s*/)[0], after: node.nodeValue.match(/\s*$/)[0] });
+  }
+  const attributeBindings = [];
+  document.querySelectorAll('[aria-label],[alt],[placeholder],[title]').forEach(element => {
+    for (const attribute of ['aria-label', 'alt', 'placeholder', 'title']) {
+      const source = element.getAttribute(attribute);
+      if (source && Object.hasOwn(dictionaries.en, source)) attributeBindings.push({ element, attribute, source });
     }
+  });
+  document.querySelectorAll('meta[name="description"],meta[property="og:title"],meta[property="og:description"]').forEach(element => {
+    attributeBindings.push({ element, attribute: 'content', source: element.content });
+  });
+  document.querySelectorAll('input[name="_subject"]').forEach(element => {
+    attributeBindings.push({ element, attribute: 'value', source: element.value });
+  });
+  const originalTitle = document.title;
+  const activeCvLinks = [...document.querySelectorAll('[data-cv-active]')].map(element => ({ element, href: element.getAttribute('href') }));
+  const pageLinks = [...document.querySelectorAll('a[href]')].filter(element => {
+    const href = element.getAttribute('href');
+    if (!href || href.startsWith('#')) return false;
+    const url = new URL(href, window.location.href);
+    return url.origin === window.location.origin && url.pathname.endsWith('.html');
+  }).map(element => ({ element, href: element.getAttribute('href') }));
 
-};
+  function renderFormState() {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+    const label = form.querySelector('[data-submit-label]');
+    const status = form.querySelector('.form-status');
+    if (label) label.textContent = translate(form.dataset.sending === 'true' ? 'Enviando…' : 'Enviar mensaje');
+    const messages = {
+      loading: 'Enviando tu mensaje.',
+      success: 'Mensaje enviado. Gracias por escribirme.',
+      error: 'No pudimos confirmar el envío. Tu mensaje sigue aquí; también puedes escribirme a simonburgosb@gmail.com.'
+    };
+    if (status && messages[status.dataset.state]) status.textContent = translate(messages[status.dataset.state]);
+  }
 
-/* ===================================================== */
-/* INITIALIZATION */
-/* ===================================================== */
+  let activeImageLink = null;
+  function renderLightboxText() {
+    if (!activeImageLink) return;
+    const original = activeImageLink.querySelector('img');
+    const preview = document.getElementById('lightbox-image');
+    const caption = document.getElementById('lightbox-caption');
+    preview.alt = original?.alt || translate('Imagen del proyecto');
+    caption.textContent = activeImageLink.closest('figure')?.querySelector('figcaption')?.textContent || preview.alt;
+  }
 
-document.addEventListener("DOMContentLoaded", () => {
-
-    App.init();
-
-});
-
-/* ===================================================== */
-/* ADD SLIDE ANIMATIONS TO DOCUMENT */
-/* ===================================================== */
-
-const style = document.createElement("style");
-
-style.textContent = `
-
-    @keyframes slideInRight {
-
-        from {
-
-            opacity: 0;
-
-            transform: translateX(30px);
-
-        }
-
-        to {
-
-            opacity: 1;
-
-            transform: translateX(0);
-
-        }
-
+  function setLanguage(next, options = {}) {
+    if (!languages.includes(next)) return;
+    language = next;
+    document.documentElement.lang = language;
+    textBindings.forEach(({ node, key, before, after }) => {
+      if (node.isConnected) node.nodeValue = before + translate(key) + after;
+    });
+    attributeBindings.forEach(({ element, attribute, source }) => element.setAttribute(attribute, translate(source)));
+    document.title = translate(originalTitle);
+    const locale = document.querySelector('meta[property="og:locale"]');
+    if (locale) locale.content = { es: 'es_CO', en: 'en_US', fr: 'fr_FR' }[language];
+    document.querySelectorAll('[data-language]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.language === language));
+    });
+    activeCvLinks.forEach(({ element, href }) => {
+      element.setAttribute('href', href.replace(/_(es|en|fr)\.pdf$/, `_${language}.pdf`));
+    });
+    document.querySelectorAll('[data-cv-code]').forEach(link => {
+      link.classList.toggle('is-language-match', link.dataset.cvCode === language);
+    });
+    // La selección también viaja en los enlaces internos si el almacenamiento
+    // está desactivado o se abre el proyecto como archivo local.
+    pageLinks.forEach(({ element, href }) => {
+      const [beforeHash, hash] = href.split('#');
+      const [pathname, search = ''] = beforeHash.split('?');
+      const params = new URLSearchParams(search);
+      params.set('lang', language);
+      element.setAttribute('href', `${pathname}?${params.toString()}${hash ? `#${hash}` : ''}`);
+    });
+    const toggle = document.querySelector('.menu-toggle');
+    if (toggle) toggle.setAttribute('aria-label', translate(toggle.getAttribute('aria-expanded') === 'true' ? 'Cerrar menú' : 'Abrir menú'));
+    renderFormState();
+    renderLightboxText();
+    if (options.persist) {
+      try { window.localStorage.setItem(languageKey, language); } catch { /* Los enlaces conservan el idioma. */ }
     }
-
-    @keyframes slideOutRight {
-
-        from {
-
-            opacity: 1;
-
-            transform: translateX(0);
-
-        }
-
-        to {
-
-            opacity: 0;
-
-            transform: translateX(30px);
-
-        }
-
+    if (options.updateUrl) {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', language);
+        window.history.replaceState(null, '', url);
+      } catch { /* La elección sigue activa aunque el navegador limite history. */ }
     }
+    if (options.announce) {
+      const status = document.getElementById('language-status');
+      if (status) status.textContent = translate('Idioma cambiado a español.');
+    }
+  }
+  document.querySelectorAll('[data-language]').forEach(button => {
+    button.addEventListener('click', () => setLanguage(button.dataset.language, { persist: true, updateUrl: true, announce: true }));
+  });
+  document.documentElement.classList.add('js');
+  const menuButton = document.querySelector('.menu-toggle');
+  const nav = document.querySelector('.main-nav');
+  const background = [...document.querySelectorAll('main, .site-footer')];
 
-`;
+  const setMenu = (open, restoreFocus = false) => {
+    if (!menuButton || !nav) return;
+    menuButton.setAttribute('aria-expanded', String(open));
+    menuButton.setAttribute('aria-label', translate(open ? 'Cerrar menú' : 'Abrir menú'));
+    nav.classList.toggle('is-open', open);
+    document.body.classList.toggle('menu-open', open);
+    background.forEach(element => { element.inert = open; });
+    if (open) nav.querySelector('a')?.focus();
+    if (restoreFocus) menuButton.focus();
+  };
 
-document.head.appendChild(style);
+  menuButton?.addEventListener('click', () => {
+    setMenu(menuButton.getAttribute('aria-expanded') !== 'true');
+  });
+  nav?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => setMenu(false));
+  });
+  document.addEventListener('keydown', event => {
+    if (menuButton?.getAttribute('aria-expanded') !== 'true') return;
+    if (event.key === 'Escape') {
+      setMenu(false, true);
+      return;
+    }
+    if (event.key === 'Tab' && nav) {
+      const focusable = [...nav.querySelectorAll('a[href]'), ...document.querySelectorAll('.site-header [data-language]'), menuButton];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      } else if (!focusable.includes(document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+  const desktop = window.matchMedia('(min-width: 1051px)');
+  desktop.addEventListener?.('change', event => {
+    if (event.matches) setMenu(false);
+  });
+
+  // Marcar la sección actual. Las anclas siguen funcionando sin JavaScript.
+  const sectionLinks = [...document.querySelectorAll('.main-nav a[href^="#"], .case-links a[href^="#"]')];
+  if ('IntersectionObserver' in window && sectionLinks.length) {
+    const sectionIds = [...new Set(sectionLinks.map(link => link.hash.slice(1)))];
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting);
+      if (!visible.length) return;
+      const id = visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0].target.id;
+      sectionLinks.forEach(link => {
+        if (link.hash === `#${id}`) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+    }, { rootMargin: '-20% 0px -55% 0px', threshold: 0 });
+    sectionIds.forEach(id => {
+      const section = document.getElementById(id);
+      if (section) observer.observe(section);
+    });
+  }
+
+  document.querySelectorAll('[data-year]').forEach(element => {
+    element.textContent = String(new Date().getFullYear());
+  });
+
+  // Ampliación accesible: enlace a la imagen como alternativa sin JS.
+  const dialog = document.getElementById('image-dialog');
+  const preview = document.getElementById('lightbox-image');
+  const caption = document.getElementById('lightbox-caption');
+  if (dialog && preview && caption && typeof dialog.showModal === 'function') {
+    document.querySelectorAll('[data-lightbox]').forEach(link => {
+      link.addEventListener('click', event => {
+        if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+        event.preventDefault();
+        activeImageLink = link;
+        preview.src = link.href;
+        renderLightboxText();
+        dialog.showModal();
+        document.body.classList.add('modal-open');
+      });
+    });
+    dialog.querySelector('.lightbox-close')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', event => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      document.body.classList.remove('modal-open');
+      preview.removeAttribute('src');
+      activeImageLink = null;
+    });
+  }
+
+  // Solo Formspree. El HTML conserva POST nativo cuando JS no está disponible.
+  // El envío se confirma únicamente si el servicio responde correctamente.
+  const form = document.getElementById('contactForm');
+  if (form && 'fetch' in window && 'AbortController' in window) {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (form.dataset.sending === 'true' || !form.reportValidity()) return;
+      const submit = form.querySelector('[type="submit"]');
+      const status = form.querySelector('.form-status');
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 15000);
+      form.dataset.sending = 'true';
+      submit.disabled = true;
+      status.dataset.state = 'loading';
+      renderFormState();
+      form.setAttribute('aria-busy', 'true');
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+          signal: controller.signal
+        });
+        if (!response.ok) throw new Error('El servicio no confirmó el envío.');
+        form.reset();
+        status.dataset.state = 'success';
+      } catch {
+        status.dataset.state = 'error';
+      } finally {
+        window.clearTimeout(timeout);
+        form.dataset.sending = 'false';
+        form.removeAttribute('aria-busy');
+        submit.disabled = false;
+        renderFormState();
+      }
+    });
+  }
+  let initialLanguage = new URL(window.location.href).searchParams.get('lang');
+  if (!languages.includes(initialLanguage)) {
+    try { initialLanguage = window.localStorage.getItem(languageKey); } catch { initialLanguage = null; }
+  }
+  setLanguage(languages.includes(initialLanguage) ? initialLanguage : 'es');
+})();
