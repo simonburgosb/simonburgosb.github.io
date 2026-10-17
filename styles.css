@@ -474,6 +474,110 @@ figcaption { color: var(--muted); font-size: .73rem; line-height: 1.5; margin-to
   .lightbox { padding: 60px 16px 25px; max-width: 96vw; }
   .lightbox img { max-width: 85vw; }
 }
+/* Chronos comparte la estructura del portafolio; su identidad aparece en las piezas. */
+.chronos-feature { margin-top: 25px; }
+.chronos-visual, .chronos-cover { background: #111a2b; isolation: isolate; }
+.chronos-visual .visual-label { color: #a8f7ff; }
+.chronos-preview-phones { display: flex; align-items: center; justify-content: center; gap: 26px; padding: 65px 30px 42px; width: 100%; }
+.chronos-preview-phones img { width: min(31%, 148px); height: auto; border-radius: 17px; box-shadow: 0 16px 35px #0005; }
+.chronos-preview-phones img:last-child { transform: translateY(20px); }
+.chronos-visual .visual-arrow { color: #fff; border-color: #6c7892; background: #202b42; }
+.chronos-tagline { font-size: 1.4rem; font-weight: 650; color: var(--ink); line-height: 1.4; margin-top: 22px; max-width: 420px; }
+.chronos-cover { min-height: 430px; }
+.chronos-orbit { position: absolute; width: 340px; height: 340px; border: 1px solid #00ddf344; border-radius: 50%; box-shadow: 0 0 0 50px #00ddf30a, 0 0 0 100px #00ddf307; z-index: -1; }
+.chronos-cover-phones { display: flex; gap: 24px; align-items: center; justify-content: center; padding: 35px 25px 55px; }
+.chronos-cover-phones img { width: min(40%, 152px); height: auto; border-radius: 15px; box-shadow: 0 15px 30px #0006; }
+.chronos-cover-phones img:last-child { width: min(40%, 118px); transform: translateY(16px); }
+.chronos-cover-note { position: absolute; bottom: 19px; color: #b0c8da; font-size: .57rem; letter-spacing: .12em; text-align: center; padding-inline: 15px; }
+.chronos-intro { max-width: 830px; font-size: .98rem; margin-bottom: 30px; }
+.chronos-board { margin-bottom: 30px; }
+.chronos-board .image-link { height: 430px; display: flex; align-items: center; padding: 20px; background: #fff; border: 1px solid var(--border); }
+.chronos-board img { max-height: 100%; width: 100%; object-fit: contain; }
+.chronos figcaption strong { display: block; color: var(--ink); font-size: .8rem; font-weight: 650; }
+.chronos figcaption > span { display: block; margin-top: 5px; }
+.chronos-subheading { font-size: 1.5rem; margin: 40px 0 22px; }
+.chronos-benchmark-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; margin-block: 28px 36px; }
+.chronos-benchmark-card { padding: 28px; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
+.chronos-benchmark-card h3 { font-size: 1.4rem; margin-bottom: 24px; }
+.chronos-benchmark-card dl > div + div { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border); }
+.chronos-benchmark-card dt { color: var(--blue); font-size: .71rem; font-weight: 700; margin-bottom: 9px; }
+.chronos-benchmark-card dd { margin: 0; color: var(--text); font-size: .87rem; }
+.chronos-flow-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+.chronos-flow-card { padding: 30px; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
+.chronos-flow-card .card-number { margin-bottom: 15px; }
+.chronos-flow-card h3 { font-size: 1.35rem; margin-bottom: 17px; }
+.chronos-flow-card p, .chronos-flow-card li { font-size: .87rem; }
+.chronos-flow-card ol { padding-left: 22px; margin-block: 23px; }
+.chronos-flow-card li { padding-left: 5px; margin-bottom: 12px; color: var(--text); }
+.chronos-flow-card li::marker { color: var(--blue); font-weight: 700; }
+.chronos-flow-card strong { display: block; color: var(--ink); font-size: .74rem; margin-bottom: 6px; }
+.chronos-flow-decision { padding-top: 19px; border-top: 1px solid var(--border); }
+.chronos-flow-outcome { margin-top: 18px; background: #eef2ff; border-radius: 8px; padding: 15px; }
+.chronos-personas { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 20px; }
+.chronos-personas article { padding: 23px; border-left: 2px solid var(--blue); background: #fff; border-radius: 0 10px 10px 0; }
+.chronos-personas h4 { font-size: 1.1rem; margin-bottom: 12px; }
+.chronos-personas p { font-size: .85rem; }
+.chronos-details { margin-top: 28px; border: 1px solid #d6deec; border-radius: 12px; background: #fff; padding: 0 24px 24px; }
+.chronos-details:not([open]) { padding-bottom: 0; }
+.chronos-details > summary { padding-block: 19px; font-size: .86rem; font-weight: 650; cursor: pointer; color: var(--ink); }
+.chronos-details > summary:hover { color: var(--blue); }
+.chronos-evidence-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 28px; margin-top: 12px; }
+.chronos-evidence-grid .image-link { height: 320px; padding: 15px; background: #f6f7fa; display: flex; align-items: center; }
+.chronos-evidence-grid img { max-height: 100%; object-fit: contain; }
+.chronos-gallery-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-block: 28px; }
+.chronos-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.chronos-filters button { min-height: 44px; padding: 10px 16px; border: 1px solid #d0d8e8; border-radius: 8px; background: #fff; color: var(--ink); font-size: .8rem; font-weight: 600; }
+.chronos-filters button:hover { border-color: var(--blue); color: var(--blue); }
+.chronos-filters button[aria-pressed=true] { background: var(--blue); color: #fff; border-color: var(--blue); }
+.chronos-gallery-status { font-size: .74rem; color: var(--muted); }
+.chronos-screen-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px; }
+.chronos-screen { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.chronos-screen .image-link { display: flex; align-items: center; justify-content: center; height: 410px; background: #c6c6c6; border-radius: 0; padding: 22px; }
+.chronos-screen img { max-height: 100%; width: auto; max-width: 100%; object-fit: contain; }
+.chronos-screen figcaption { padding: 17px 20px 20px; margin: 0; }
+.chronos-screen[hidden] { display: none; }
+.chronos-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.chronos-methods article { padding: 30px; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
+.chronos-method-number { font-size: 2.4rem; color: var(--blue); font-weight: 700; line-height: 1.2; display: block; margin-bottom: 14px; letter-spacing: -.04em; }
+.chronos-methods h3 { font-size: 1.2rem; margin-bottom: 15px; }
+.chronos-methods p { font-size: .88rem; }
+.chronos-task-note { border-left: 2px solid var(--blue); padding-left: 20px; margin-top: 25px; }
+.chronos-task-note p { font-size: .9rem; }
+.chronos-results { min-width: 680px; }
+.chronos-results caption { text-align: left; font-weight: 650; font-size: .84rem; padding: 18px 26px; color: var(--ink); }
+.chronos-results tbody th { background: #fff; border-top: 1px solid var(--border); font-size: .85rem; }
+.chronos-results td { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chronos .opportunity-band > p:not(.eyebrow) { color: #d6deee; max-width: 850px; font-size: .94rem; }
+.chronos .opportunity-band h3 { max-width: 800px; }
+@media (max-width: 800px) {
+  .chronos-cover { min-height: 380px; max-width: 600px; }
+  .chronos-cover-phones img { width: 145px; }
+  .chronos-cover-phones img:last-child { width: 110px; }
+  .chronos-personas { grid-template-columns: 1fr; }
+  .chronos-screen-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+  .chronos-screen .image-link { height: 360px; padding: 17px; }
+  .chronos-benchmark-grid, .chronos-flow-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .chronos-preview-phones { padding-inline: 20px; gap: 20px; }
+  .chronos-preview-phones img { width: 35%; }
+  .chronos-cover { min-height: 360px; }
+  .chronos-cover-phones { padding-inline: 12px; gap: 17px; }
+  .chronos-cover-phones img { width: 128px; }
+  .chronos-cover-phones img:last-child { width: 100px; }
+  .chronos-tagline { font-size: 1.2rem; }
+  .chronos-board .image-link { height: 300px; padding: 10px; }
+  .chronos-evidence-grid, .chronos-methods { grid-template-columns: 1fr; }
+  .chronos-details { padding-inline: 16px; }
+  .chronos-evidence-grid .image-link { height: 270px; padding: 10px; }
+  .chronos-benchmark-card, .chronos-flow-card { padding: 23px; }
+  .chronos-filters { gap: 7px; }
+  .chronos-filters button { font-size: .74rem; padding-inline: 12px; }
+  .chronos-methods article { padding: 24px; }
+}
+@media (max-width: 400px) {
+  .chronos-screen-grid { grid-template-columns: 1fr; }
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
